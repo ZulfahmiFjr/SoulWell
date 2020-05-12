@@ -1,0 +1,13 @@
+name: SoulWell
+main: SoulWell\ZulfahmiFjr\Main
+author: ZulfahmiFjr
+version: 1
+api: [3.0.0]
+
+commands:
+ soulwell:
+     description: SoulWell plugin info
+ addwell:
+     description: Add SoulWell block
+ addsouls:
+     description: Add Soul Keys player
