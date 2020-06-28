@@ -33,7 +33,7 @@ use pocketmine\nbt\tag\CompoundTag;
 use pocketmine\network\mcpe\protocol\BlockActorDataPacket;
 use pocketmine\Player;
 
-abstract class BaseFakeInventory extends ContainerInventory{
+class BaseFakeInventory extends ContainerInventory{
 
 	const INVENTORY_HEIGHT = 3;
 
