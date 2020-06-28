@@ -56,7 +56,7 @@ class BaseFakeInventory extends ContainerInventory{
 	}
 
 	public function createNewInstance(InvMenu $menu) : BaseFakeInventory{
-		return new BaseFakeInventory($menu, $this->getContents());
+		return new static($menu, $this->getContents());
 	}
 
 	final public function send(Player $player, ?string $custom_name) : bool{
