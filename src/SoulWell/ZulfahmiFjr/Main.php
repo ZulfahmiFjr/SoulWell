@@ -69,9 +69,16 @@ class Main extends PluginBase implements Listener{
        $pk = new ModalFormRequestPacket();
        $pk->formId = 7382999;
        $message = "§f       _________________________\n           §6§lSoul Well by Hypixel\n§r§f       -------------------------\n";
-       foreach($this->getConfig()->get("message") as $text){
-        $text = str_replace(["{KEY}", "{PLAYER}"], [$this->souls->get($p->getLowerCaseName()), $p->getName()], $text);
-        $message .= "{$text}§r\n\n";
+       if(!empty($this->getConfig()->get("message"))){
+        if(is_array($this->getConfig()->get("message"))){
+         foreach($this->getConfig()->get("message") as $text){
+          $text = str_replace(["{KEY}", "{PLAYER}"], [$this->souls->get($p->getLowerCaseName()), $p->getName()], $text);
+          $message .= "{$text}§r\n\n";
+         }
+        }else{
+         $text = str_replace(["{KEY}", "{PLAYER}"], [$this->souls->get($p->getLowerCaseName()), $p->getName()], $this->getConfig()->get("message"));
+         $message .= "{$text}§r\n\n";
+        }
        }
        $encode = ["type" => "form", "title" => "§e§lSoul Well Confirm", "content" => "{$message}", "buttons" => [["text" => "§lOpen SoulWell"], ["text" => "§lCancel Opening"]]];
        $data = json_encode($encode);
