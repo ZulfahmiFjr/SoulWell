@@ -37,13 +37,10 @@ class BaseFakeInventory extends ContainerInventory{
 
 	const INVENTORY_HEIGHT = 3;
 
-	/** @var InvMenu */
 	protected $menu;
 
-	/** @var int */
 	protected $default_send_delay = 0;
 
-	/** @var HolderData[] */
 	private $holder_data = [];
 
 	public function __construct(InvMenu $menu, array $items = [], int $size = null, string $title = null){
