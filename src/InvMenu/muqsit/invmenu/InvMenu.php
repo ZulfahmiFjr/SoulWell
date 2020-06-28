@@ -101,8 +101,8 @@ abstract class InvMenu implements MenuIds{
 	final public function send(Player $player, ?string $name = null, ?Closure $callback = null) : void{
 		/** @var PlayerSession $session */
 		$session = PlayerManager::get($player);
-		if($session === null){
-			if($callback !== null){
+		if($session == null){
+			if($callback != null){
 				$callback(false);
 			}
 		}else{
@@ -133,7 +133,7 @@ abstract class InvMenu implements MenuIds{
 			return false;
 		}
 
-		return $this->listener === null || ($this->listener)($player, $in, $out, $action);
+		return $this->listener == null || ($this->listener)($player, $in, $out, $action);
 	}
 
 	public function onClose(Player $player) : void{
