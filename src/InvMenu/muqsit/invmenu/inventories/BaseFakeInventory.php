@@ -56,7 +56,7 @@ class BaseFakeInventory extends ContainerInventory{
 		return new static($menu, $this->getContents());
 	}
 
-	final public function send(Player $player, ?string $custom_name) : bool{
+	public function send(Player $player, ?string $custom_name) : bool{
 		$position = $player->floor()->add(0, static::INVENTORY_HEIGHT, 0);
 		if($player->getLevel()->isInWorld($position->x, $position->y, $position->z)){
 			$this->sendFakeBlockData($player, $this->holder_data[$player->getId()] = new HolderData($position, $custom_name));
@@ -66,7 +66,7 @@ class BaseFakeInventory extends ContainerInventory{
 		return false;
 	}
 
-	final public function open(Player $player) : bool{
+	public function open(Player $player) : bool{
 		if(!isset($this->holder_data[$player->getId()])){
 			return false;
 		}
@@ -74,13 +74,13 @@ class BaseFakeInventory extends ContainerInventory{
 		return parent::open($player);
 	}
 
-	final public function onOpen(Player $player) : void{
+	public function onOpen(Player $player) : void{
 		$this->holder = $this->holder_data[$player->getId()]->position;
 		parent::onOpen($player);
 		$this->holder = null;
 	}
 
-	final public function onClose(Player $player) : void{
+	public function onClose(Player $player) : void{
 		if(isset($this->holder_data[$id = $player->getId()])){
 			$pos = $this->holder_data[$id]->position;
 			if($player->getLevel()->isChunkLoaded($pos->x >> 4, $pos->z >> 4)){
@@ -99,11 +99,11 @@ class BaseFakeInventory extends ContainerInventory{
 		}
 	}
 
-	abstract protected function sendFakeBlockData(Player $player, HolderData $data) : void;
+	protected function sendFakeBlockData(Player $player, HolderData $data) : void;
 
-	abstract protected function sendRealBlockData(Player $player, HolderData $data) : void;
+	protected function sendRealBlockData(Player $player, HolderData $data) : void;
 
-	abstract public function getTileId() : string;
+	public function getTileId() : string;
 
 	public function getSendDelay(Player $player) : int{
 		return $this->default_send_delay;
