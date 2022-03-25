@@ -1,0 +1,20 @@
+name: SoulWell
+main: SoulWell\ZulfahmiFjr\Main
+author: ZulfahmiFjr
+version: 1.2
+api: 4.0.0
+
+commands:
+ soulwell:
+     description: SoulWell plugin
+     permission: soulwell.command
+ addwell:
+     description: Add SoulWell block
+     permission: soulwell.command
+ addsouls:
+     description: Add Soul Keys player
+     permission: soulwell.command
+
+permissions:
+  soulwell.command:
+    default: true
