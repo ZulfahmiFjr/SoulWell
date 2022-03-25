@@ -40,6 +40,10 @@ use SoulWell\ZulfahmiFjr\task\RollUpdater;
 
 class Main extends PluginBase implements Listener{
 
+    public $wellItems;
+
+    public $souls;
+
     public $set = array();
 
     public function onEnable():void{
