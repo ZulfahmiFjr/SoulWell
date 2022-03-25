@@ -14,6 +14,8 @@ use pocketmine\network\mcpe\protocol\LevelSoundEventPacket;
 
 class NoteBlockSound implements Sound{
 
+    private $note;
+
     public function __construct($note){
 
      $this->note = $note;
