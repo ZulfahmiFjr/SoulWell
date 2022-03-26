@@ -20,7 +20,7 @@ use SoulWell\ZulfahmiFjr\manager\NoteBlockSound;
 class RollUpdater extends Task{
 
     private $pl;
-    private $p;
+    private $p = null;
     private $delay;
     private $wellMenu;
     private $note = 12;
@@ -153,7 +153,7 @@ class RollUpdater extends Task{
       }
       if($delay === -15){
        $item = $wellInventory->getItem(31);
-       if($p->isOnline()){
+       if($p !== null && $p instanceof Player && $p->isOnline()){
         $this->addItemToPlayer($p, $item);
         $p->sendMessage("§f§lSoulWell§r§f: §7§oYou get §r§f".$item->getName()." §7§owith amount §r§f".$item->getCount()." §7§ofrom SoulWell§r§f.");
        }
