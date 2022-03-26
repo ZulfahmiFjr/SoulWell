@@ -160,7 +160,7 @@ class RollUpdater extends Task{
     }
 
     private function addItemToPlayer(Player $p, Item $item):void{
-     $p->getInventory()->addItem($item);
+     
     }
 
 }
