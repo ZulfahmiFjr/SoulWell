@@ -53,28 +53,38 @@ final class LibInvType{
 	}
 	
 	public function getWindowType() : int{
-		return match($this->id()){
-			self::CHEST()->id(), self::DOUBLE_CHEST()->id() => WindowTypes::CONTAINER,
-			self::DROPPER()->id() => WindowTypes::DROPPER,
-			self::HOPPER()->id() => WindowTypes::HOPPER
-		};
+		if($this->id() === self::CHEST()->id() || $this->id() === self::DOUBLE_CHEST()->id()){
+			return WindowTypes::CONTAINER;
+		}else if($this->id() === self::DROPPER()->id()){
+			return WindowTypes::DROPPER; 
+		}else if($this->id() === self::HOPPER()->id()){
+			return WindowTypes::HOPPER;
+		}
+		return 0;
 	}
 	
 	public function getSize() : int{
-		return match($this->id()){
-			self::CHEST()->id() => 27,
-			self::DOUBLE_CHEST()->id() => 54,
-			self::DROPPER()->id() => 9,
-			self::HOPPER()->id() => 5
-		};
+		if($this->id() === self::CHEST()->id()){
+			return 27;
+		}else if($this->id() === self::DOUBLE_CHEST()->id()){
+			return 54;
+		}else if($this->id() === self::DROPPER()->id()){
+			return 9;
+		}else if($this->id() === self::HOPPER()->id()){
+			return 5;
+		}
+		return 0;
 	}
 	
 	public function getBlockId() : int{
-		return match($this->id()){
-			self::CHEST()->id(), self::DOUBLE_CHEST()->id() => BlockLegacyIds::CHEST,
-			self::DROPPER()->id() => BlockLegacyIds::DROPPER,
-			self::HOPPER()->id() => BlockLegacyIds::HOPPER_BLOCK
-		};
+		if($this->id() === self::CHEST()->id() || $this->id() === self::DOUBLE_CHEST()->id()){
+			return BlockLegacyIds::CHEST;
+		}else if($this->id() === self::DROPPER()->id()){
+			return BlockLegacyIds::DROPPER; 
+		}else if($this->id() === self::HOPPER()->id()){
+			return BlockLegacyIds::HOPPER_BLOCK;
+		}
+		return 0;
 	}
 	
 }
