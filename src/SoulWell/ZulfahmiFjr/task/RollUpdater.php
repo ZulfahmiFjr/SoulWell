@@ -22,6 +22,7 @@ class RollUpdater extends Task{
     private $pl;
     private $p;
     private $delay;
+    private $wellMenu;
     private $note = 12;
     private $low = 0;
     private $prediction = null;
