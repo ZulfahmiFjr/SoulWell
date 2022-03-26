@@ -49,7 +49,7 @@ class RollUpdater extends Task{
        }
       }else if(($item = $this->prediction) instanceof Item){
        if($p->isOnline()){
-        $p->getInventory()->addItem($item);
+        
         $p->sendMessage("§f§lSoulWell§r§f: §7§oYou get §r§f".$item->getName()." §7§owith amount §r§f".$item->getCount()." §7§ofrom SoulWell§r§f.");
        }
       }
