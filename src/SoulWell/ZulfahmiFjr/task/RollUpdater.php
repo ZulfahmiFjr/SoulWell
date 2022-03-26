@@ -20,7 +20,7 @@ use SoulWell\ZulfahmiFjr\manager\NoteBlockSound;
 class RollUpdater extends Task{
 
     private $pl;
-    private $p = null;
+    private $p;
     private $delay;
     private $wellMenu;
     private $note = 12;
