@@ -1,4 +1,4 @@
-[![](https://poggit.pmmp.io/shield.state/SoulWell)](https://poggit.pmmp.io/p/SoulWell)
+[![](https://poggit.pmmp.io/shield.state/SoulWell)](https://poggit.pmmp.io/ci/ZulfahmiFjr/SoulWell/SoulWell)
 # SoulWell
 ``
 UP TO PMMP API 4.0.0
