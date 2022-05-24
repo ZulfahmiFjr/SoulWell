@@ -177,7 +177,7 @@ class Main extends PluginBase implements Listener{
        break;
       }
       case "addsouls":{
-       if(!$this->getServer()->isOp($p->getName())){
+       if(!$this->getServer()->isOp($p->getName()) && $p instanceof Player){
         $p->sendMessage("§f§lSoulWell§r§f: §7§oYou have no permission to use this command§r§f!");
         return false;
        }
