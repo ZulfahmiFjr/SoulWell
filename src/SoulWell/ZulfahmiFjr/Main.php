@@ -74,7 +74,7 @@ class Main extends PluginBase implements Listener{
             if($b->getPosition()->x === $x && $b->getPosition()->y === $y + 2 && $b->getPosition()->z === $z || $b->getPosition()->x === $x && $b->getPosition()->y === $y + 1 && $b->getPosition()->z === $z){
                 $pk = new ModalFormRequestPacket();
                 $pk->formId = 7382999;
-                $message = "§f       _________________________\n           §6§lSoul Well\n§r§f       -------------------------\n";
+                $message = "§f       _________________________\n           §6§lSoul Well by Hypixel\n§r§f       -------------------------\n";
                 if(!empty($this->getConfig()->get("message"))){
                     if(is_array($this->getConfig()->get("message"))){
                         foreach($this->getConfig()->get("message") as $text){
@@ -150,7 +150,7 @@ class Main extends PluginBase implements Listener{
             if($id === 7382999){
                 if(isset($data)){
                     if($data === 0){
-                        if($this->souls->get(strtolower($p->getName())) < 1){
+                        if($this->souls->get(strtolower($p->getName())) < 10){
                             $p->sendMessage("§f§lSoulWell§r§f: §7§oYour Soul Keys amount is still lacking to open SoulWell§r§f!");
                             return;
                         }
