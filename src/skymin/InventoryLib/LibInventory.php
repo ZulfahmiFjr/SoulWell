@@ -25,12 +25,13 @@ declare(strict_types = 1);
 
 namespace skymin\InventoryLib;
 
+use czechpmdevs\buildertools\utils\StringToBlockParser;
 use pocketmine\player\Player;
 
 use pocketmine\inventory\SimpleInventory;
 use pocketmine\block\inventory\BlockInventory;
 
-use pocketmine\block\{Block, BlockFactory};
+use pocketmine\block\{Block, BlockFactory, VanillaBlocks};
 
 use pocketmine\world\Position;
 
@@ -145,7 +146,8 @@ class LibInventory extends SimpleInventory implements BlockInventory{
 		$y = $holder->y;
 		$z = $holder->z;
 		$world = $holder->world;
-		$blockId = BlockFactory::getInstance()->get($type->getBlockId(), 0)->getFullId();
+//		$blockId = BlockFactory::getInstance()->get($type->getBlockId(), 0)->getFullId();
+        $blockId = VanillaBlocks::END_PORTAL_FRAME()->getTypeId();
 		$nbt = CompoundTag::create()
 			->setString('id', 'Chest')
 			->setInt('Chest', 1)
