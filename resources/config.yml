@@ -1,35 +1,27 @@
 ---
 message:
-   - "§l§9»» §r§7§oHi§r§f {PLAYER}! §r§7§oif you want to open SoulWell§r§f, §7§oyou must have at least 10 Soul Keys to unlock 1 SoulWell§r§f!"
-   - "§l§9»» §r§7§oYour Soul Keys now§r§f: {KEY}!"
+  - §l§9»» §r§7§oHi§r§f {PLAYER}! §r§7§oif you want to open SoulWell§r§f, §7§oyou must
+    have at least 10 Soul Keys to unlock 1 SoulWell§r§f!
+  - '§l§9»» §r§7§oYour Soul Keys now§r§f: {KEY}!'
 items:
-   - name: "§a§lG Sword§r"
-     id: 276
-     meta: 0
-     amount: 1
-     enchantments:
-       protection:
+  - name: diamond_sword
+    id: 276
+    meta: 0
+    amount: 1
+    enchantments:
+      protection:
         level: 3
-     lore: "OP Sword\nFire Blade"
-   - id: 366
-     meta: 0
-     amount: 16
-   - id: 265
-     meta: 0
-     amount: 10
-   - id: 266
-     meta: 0
-     amount: 10
-   - id: 17
-     meta: 0
-     amount: 64
-   - id: 264
-     meta: 0
-     amount: 16
-   - id: 388
-     meta: 0
-     amount: 16
-   - id: 322
-     meta: 0
-     amount: 16
+    lore: |-
+      OP Sword
+      Fire Blade
+  - name: diamond
+    amount: 10
+  - name: emerald
+    amount: 10
+  - name: iron
+    amount: 10
+
+well.x: -42
+well.y: 44
+well.z: 32
 ...

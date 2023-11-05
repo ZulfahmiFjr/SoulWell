@@ -1,8 +1,8 @@
 name: SoulWell
 main: SoulWell\ZulfahmiFjr\Main
 author: ZulfahmiFjr
-version: 1.2
-api: 4.0.0
+version: 1.3
+api: 5.0.0
 
 commands:
  soulwell:
