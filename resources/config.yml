@@ -4,32 +4,24 @@ message:
    - "§l§9»» §r§7§oYour Soul Keys now§r§f: {KEY}!"
 items:
    - name: "§a§lG Sword§r"
-     id: 276
-     meta: 0
+     id: "diamond_sword"
      amount: 1
      enchantments:
        protection:
         level: 3
      lore: "OP Sword\nFire Blade"
-   - id: 366
-     meta: 0
+   - id: "cooked_chicken"
      amount: 16
-   - id: 265
-     meta: 0
+   - id: "iron_ingot"
      amount: 10
-   - id: 266
-     meta: 0
+   - id: "gold_ingot"
      amount: 10
-   - id: 17
-     meta: 0
+   - id: "oak_log"
      amount: 64
-   - id: 264
-     meta: 0
+   - id: "diamond"
      amount: 16
-   - id: 388
-     meta: 0
+   - id: "emerald"
      amount: 16
-   - id: 322
-     meta: 0
+   - id: "golden_apple"
      amount: 16
 ...
