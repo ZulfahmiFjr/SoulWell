@@ -18,7 +18,10 @@ class NoteBlockSound implements Sound{
 
     public function encode(Vector3 $vector):array{
      $pk = new BlockEventPacket();
-     $pk->blockPosition = new BlockPosition($vector->x, $vector->y, $vector->z);
+     $x = (int) round($vector->x);
+     $y = (int) round($vector->y);
+     $z = (int) round($vector->z);
+     $pk->blockPosition = new BlockPosition($x, $y, $z);
      $pk->eventType = 0;
      $pk->eventData = $this->note;
      $pk2 = new LevelSoundEventPacket();

@@ -19,7 +19,7 @@ use pocketmine\network\mcpe\protocol\ModalFormResponsePacket;
 use pocketmine\command\CommandSender;
 use pocketmine\command\Command;
 
-use skymin\InventoryLib\InvLibManager;
+use muqsit\invmenu\InvMenuHandler;
 use SoulWell\ZulfahmiFjr\task\RollUpdater;
 
 class Main extends PluginBase implements Listener{
@@ -31,7 +31,7 @@ class Main extends PluginBase implements Listener{
     public function onEnable():void{
      if(!is_dir($this->getDataFolder())) @mkdir($this->getDataFolder());
      $this->getServer()->getPluginManager()->registerEvents($this, $this);
-     InvLibManager::register($this);
+     if(!InvMenuHandler::isRegistered()) InvMenuHandler::register($this);
      $this->saveResource("config.yml");
      $this->wellItems = $this->getConfig()->get("items");
      $this->souls = new Config($this->getDataFolder().'souls.yml', Config::YAML);
@@ -140,7 +140,7 @@ class Main extends PluginBase implements Listener{
      $p = $e->getOrigin()->getPlayer();
      if($pk instanceof ModalFormResponsePacket){
       $id = $pk->formId;
-      $data = json_decode($pk->formData, true);
+      $data = json_decode($pk->formData ?? '[]', true);
       if($id === 7382999){
        if(isset($data)){
         if($data === 0){

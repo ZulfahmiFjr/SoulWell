@@ -6,15 +6,15 @@ use pocketmine\scheduler\Task;
 use pocketmine\player\Player;
 use pocketmine\world\Position;
 use pocketmine\item\Item;
-use pocketmine\item\ItemFactory;
-use pocketmine\item\ItemIds;
+use pocketmine\block\VanillaBlocks;
+use pocketmine\item\ItemTypeIds;
+use pocketmine\block\utils\DyeColor;
+use pocketmine\item\StringToItemParser;
 use pocketmine\item\enchantment\StringToEnchantmentParser;
 use pocketmine\item\enchantment\EnchantmentInstance;
 
 use SoulWell\ZulfahmiFjr\Main;
-use skymin\InventoryLib\InvLibManager;
-use skymin\InventoryLib\LibInvType;
-use skymin\InventoryLib\InvLibAction;
+use muqsit\invmenu\InvMenu;
 use SoulWell\ZulfahmiFjr\manager\NoteBlockSound;
 
 class RollUpdater extends Task{
@@ -32,12 +32,14 @@ class RollUpdater extends Task{
      $this->p = $p;
      $this->delay = $delay;
      $playerPos = $p->getPosition();
-     $wellMenu = InvLibManager::create(LibInvType::DOUBLE_CHEST(), new Position($playerPos->x, $playerPos->y - 2, $playerPos->z, $playerPos->getWorld()), 'Soul Well');
-     $wellMenu->setListener(function(InvLibAction $action):void{
-      $action->setCancelled();
+     $menu = InvMenu::create(InvMenu::TYPE_DOUBLE_CHEST);
+     $menu->setName("Soul Well");
+     $menu->setListener(InvMenu::readonly());
+     $menu->setInventoryCloseListener(function(Player $p):void{
+      $this->closeInventory($p);
      });
-     $wellMenu->setCloseListener(\Closure::fromCallable([$this, 'closeInventory']));
-     $wellMenu->send($p);
+     $menu->send($p);
+     $wellMenu = $menu->getInventory();
      $this->wellMenu = $wellMenu;
     }
 
@@ -66,13 +68,17 @@ class RollUpdater extends Task{
      $items = $this->pl->wellItems;
      $reward = array_rand($items, 1);
      $reward = $items[$reward];
-     if(!isset($reward["id"]) || !isset($reward["meta"]) || !isset($reward["amount"])){
+     if(!isset($reward["id"]) || !isset($reward["amount"])){
       $this->pl->souls->set(strtolower($p->getName()), $this->pl->souls->get(strtolower($p->getName())) + 10);
       $this->pl->souls->save();
       $p->sendMessage("§f§lSoulWell§r§f: §7§oAn error occurred in the SoulWell system your Soul Keys will be returned soon§r§f, §7§oplease report admin§r§f!");
       return null;
      }
-     $item = ItemFactory::getInstance()->get($reward["id"], $reward["meta"], $reward["amount"]);
+     $idString = $reward["id"];
+     $item = StringToItemParser::getInstance()->parse($idString);
+     if(isset($reward["amount"])){
+      $item->setCount($reward["amount"]);
+     }
      if(isset($reward["name"])){
       $item->setCustomName($reward["name"]);
      }
@@ -108,12 +114,16 @@ class RollUpdater extends Task{
         $i = 0;
         while($i < 54){
          if($i !== 4 && $i !== 13 && $i !== 22 && $i !== 31 && $i !== 40 && $i !== 49 && $i !== 30 && $i !== 32){
-          $wellInventory->setItem($i, ItemFactory::getInstance()->get(ItemIds::STAINED_GLASS_PANE, mt_rand(0, 15)));
+          $colors = DyeColor::getAll();
+          $randomColor = $colors[array_rand($colors)];
+          $item = VanillaBlocks::STAINED_GLASS_PANE()->setColor($randomColor)->asItem();
+          $wellInventory->setItem($i, $item);
          }
          $i++;
         }
-        $wellInventory->setItem(30, ItemFactory::getInstance()->get(ItemIds::END_ROD, 0));
-        $wellInventory->setItem(32, ItemFactory::getInstance()->get(ItemIds::END_ROD, 0));
+        $itemEndRod = VanillaBlocks::END_ROD()->asItem();
+        $wellInventory->setItem(30, $itemEndRod);
+        $wellInventory->setItem(32, $itemEndRod);
         if($this->note === 11 || $this->note === 12){
          $p->getWorld()->addSound($p->getPosition(), new NoteBlockSound(5));
          if($this->note === 11){
@@ -145,18 +155,18 @@ class RollUpdater extends Task{
        $this->low--;
       }
       if($delay === -1){
-       $wellInventory->setItem(4, ItemFactory::getInstance()->get(ItemIds::AIR, 0));
-       $wellInventory->setItem(13, ItemFactory::getInstance()->get(ItemIds::AIR, 0));
-       $wellInventory->setItem(22, ItemFactory::getInstance()->get(ItemIds::AIR, 0));
-       $wellInventory->setItem(40, ItemFactory::getInstance()->get(ItemIds::AIR, 0));
-       $wellInventory->setItem(49, ItemFactory::getInstance()->get(ItemIds::AIR, 0));
+       $wellInventory->setItem(4, VanillaBlocks::AIR()->asItem());
+       $wellInventory->setItem(13, VanillaBlocks::AIR()->asItem());
+       $wellInventory->setItem(22, VanillaBlocks::AIR()->asItem());
+       $wellInventory->setItem(40, VanillaBlocks::AIR()->asItem());
+       $wellInventory->setItem(49, VanillaBlocks::AIR()->asItem());
       }
       if($delay === -15){
        $item = $wellInventory->getItem(31);
        $this->addItemToPlayer($p, $item);
        $p->sendMessage("§f§lSoulWell§r§f: §7§oYou get §r§f".$item->getName()." §7§owith amount §r§f".$item->getCount()." §7§ofrom SoulWell§r§f.");
        $this->getHandler()->cancel();
-       $wellInventory->close($p);
+       $p->removeCurrentWindow();
       }
      }
     }
