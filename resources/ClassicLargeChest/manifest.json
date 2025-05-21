@@ -1,0 +1,17 @@
+{
+  "format_version": 2,
+  "header": {
+    "name": "Classic Large Chest UI",
+    "description": "Only replaces large chest UI with Windows style",
+    "uuid": "9a24aa06-4b11-adc7-e282-84bb9d7c0e28",
+    "min_engine_version": [1, 21, 0],
+    "version": [1, 2, 8]
+  },
+  "modules": [
+    {
+      "type": "resources",
+      "uuid": "cccfccca-5eb9-3f42-1e27-609951dfed73",
+      "version": [1, 0, 0]
+    }
+  ]
+}

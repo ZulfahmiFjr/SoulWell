@@ -5,6 +5,9 @@ namespace SoulWell\ZulfahmiFjr;
 use pocketmine\plugin\PluginBase;
 use pocketmine\event\Listener;
 use pocketmine\utils\Config;
+use pocketmine\resourcepacks\ZippedResourcePack;
+use pocketmine\utils\Filesystem;
+use Symfony\Component\Filesystem\Path;
 use pocketmine\event\player\PlayerJoinEvent;
 use pocketmine\player\Player;
 use pocketmine\math\Vector3;
@@ -29,7 +32,26 @@ class Main extends PluginBase implements Listener{
     public $souls;
     public $coords;
     public $set = array();
-
+    
+    private function loadPack(){
+        $manager = $this->getServer()->getResourcePackManager();
+        $pack = new ZippedResourcePack($this->getDataFolder()."resource.zip");
+        $reflection = new \ReflectionClass($manager);
+        $property = $reflection->getProperty("resourcePacks");
+        $property->setAccessible(true);
+        $currentResourcePacks = $property->getValue($manager);
+        $currentResourcePacks[] = $pack;
+        $property->setValue($manager, $currentResourcePacks);
+        $property = $reflection->getProperty("uuidList");
+        $property->setAccessible(true);
+        $currentUUIDPacks = $property->getValue($manager);
+        $currentUUIDPacks[strtolower($pack->getPackId())] = $pack;
+        $property->setValue($manager, $currentUUIDPacks);
+        $property = $reflection->getProperty("serverForceResources");
+        $property->setAccessible(true);
+        $property->setValue($manager, true);
+    }
+    
     public function onEnable():void{
      if(!is_dir($this->getDataFolder())) @mkdir($this->getDataFolder());
      $this->getServer()->getPluginManager()->registerEvents($this, $this);
@@ -39,7 +61,44 @@ class Main extends PluginBase implements Listener{
      $this->souls = new Config($this->getDataFolder().'souls.yml', Config::YAML);
      if($this->getServer()->getPluginManager()->getPlugin("ScoreHud") !== null) $this->getServer()->getPluginManager()->registerEvents(new SoulKeyProvider($this), $this);
      $this->coords = new Config($this->getDataFolder().'coords.yml', Config::YAML);
+     if($this->getConfig()->get("classic-chest-rp")){
+      $zip = new \ZipArchive();
+      $zip->open(Path::join($this->getDataFolder(), "resource.zip"), \ZipArchive::CREATE | \ZipArchive::OVERWRITE);
+      foreach($this->getResources() as $resource){
+       if($resource->isFile() && str_contains($resource->getPathname(), 'ClassicLargeChest')){
+        $relativePath = Path::normalize(preg_replace("/.*[\/\\\\]ClassicLargeChest[\/\\\\].*/U", '', $resource->getPathname()));
+        $this->saveResource(Path::join('ClassicLargeChest', $relativePath), true);
+        $zip->addFile(Path::join($this->getDataFolder(), 'ClassicLargeChest', $relativePath), $relativePath);
+       }
+      }
+      $zip->close();
+      Filesystem::recursiveUnlink(Path::join($this->getDataFolder().'ClassicLargeChest'));
+      $this->loadPack();
+     }
      $this->getLogger()->info("SoulWell Plugin Made By ZulfahmiFjr");
+    }
+
+    public function onDisable():void{
+     if($this->getConfig()->get("classic-chest-rp")){
+      $manager = $this->getServer()->getResourcePackManager();
+      $resourcePack = new ZippedResourcePack($this->getDataFolder()."resource.zip");
+      $reflection = new \ReflectionClass($manager);
+      $property = $reflection->getProperty("resourcePacks");
+      $property->setAccessible(true);
+      $currentResourcePacks = $property->getValue($manager);
+      $key = array_search($resourcePack, $currentResourcePacks, true);
+      if($key !== false){
+       unset($currentResourcePacks[$key]);
+       $property->setValue($manager, $currentResourcePacks);
+      }
+      $property = $reflection->getProperty("uuidList");
+      $property->setAccessible(true);
+      $currentUUIDPacks = $property->getValue($manager);
+      if(isset($currentResourcePacks[strtolower($resourcePack->getPackId())])) {
+       unset($currentUUIDPacks[strtolower($resourcePack->getPackId())]);
+       $property->setValue($manager, $currentUUIDPacks);
+      }
+     }
     }
 
     public function onPlayerJoin(PlayerJoinEvent $e){

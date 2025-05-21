@@ -2,6 +2,7 @@
 message:
    - "§l§9»» §r§7§oHi§r§f {PLAYER}! §r§7§oif you want to open SoulWell§r§f, §7§oyou must have at least 10 Soul Keys to unlock 1 SoulWell§r§f!"
    - "§l§9»» §r§7§oYour Soul Keys now§r§f: {KEY}!"
+classic-chest-rp: true
 items:
    - name: "§a§lG Sword§r"
      id: "diamond_sword"
