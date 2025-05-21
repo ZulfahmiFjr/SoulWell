@@ -20,6 +20,7 @@ use pocketmine\command\CommandSender;
 use pocketmine\command\Command;
 
 use muqsit\invmenu\InvMenuHandler;
+use SoulWell\ZulfahmiFjr\event\SoulKeyProvider;
 use SoulWell\ZulfahmiFjr\task\RollUpdater;
 
 class Main extends PluginBase implements Listener{
@@ -35,6 +36,7 @@ class Main extends PluginBase implements Listener{
      $this->saveResource("config.yml");
      $this->wellItems = $this->getConfig()->get("items");
      $this->souls = new Config($this->getDataFolder().'souls.yml', Config::YAML);
+     if($this->getServer()->getPluginManager()->getPlugin("ScoreHud") !== null) $this->getServer()->getPluginManager()->registerEvents(new SoulKeyProvider($this), $this);
      $this->coords = new Config($this->getDataFolder().'coords.yml', Config::YAML);
      $this->getLogger()->info("SoulWell Plugin Made By ZulfahmiFjr");
     }
