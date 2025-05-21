@@ -18,8 +18,8 @@ class SoulKeyProvider implements Listener{
 
     public function onTagResolve(TagsResolveEvent $e){
         $tag = $e->getTag();
-		$tags = explode('.', $tag->getName(), 2);
-		$key = "";
+        $tags = explode('.', $tag->getName(), 2);
+        $key = "";
         $p = $e->getPlayer();
         if($tags[0] !== 'soulwell' || count($tags) < 2) return;
         if($tags[1] === "soulkey"){
