@@ -23,6 +23,7 @@
 - 📦 Randomized reward system
 - 🖼 Modern popup UI with confirmation
 - ⚙️ Easy to configure and customize
+- 📊 ScoreHud integration with `{soulwell.soulkey}` tag to display Soul Key count
 
 ---
 
