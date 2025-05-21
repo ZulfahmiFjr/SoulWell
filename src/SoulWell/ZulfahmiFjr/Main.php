@@ -35,6 +35,7 @@ class Main extends PluginBase implements Listener{
      $this->saveResource("config.yml");
      $this->wellItems = $this->getConfig()->get("items");
      $this->souls = new Config($this->getDataFolder().'souls.yml', Config::YAML);
+     $this->coords = new Config($this->getDataFolder().'coords.yml', Config::YAML);
      $this->getLogger()->info("SoulWell Plugin Made By ZulfahmiFjr");
     }
 
@@ -45,10 +46,10 @@ class Main extends PluginBase implements Listener{
        $this->souls->set(strtolower($p->getName()), 0);
        $this->souls->save();
       }
-      $data = $this->getConfig();
-      $x = $data->get("well.x");
-      $y = $data->get("well.y");
-      $z = $data->get("well.z");
+      $data = $this->coords;
+      $x = $data->get("x");
+      $y = $data->get("y");
+      $z = $data->get("z");
       $text = "§bSoul Well\n§l§eRIGHT CLICK";
       $p->getWorld()->addParticle(new Vector3($x + 0.5, $y + 2, $z + 0.5), new FloatingTextParticle('', $text), array($p));
      }
@@ -62,10 +63,10 @@ class Main extends PluginBase implements Listener{
      $p = $e->getPlayer();
      $b = $e->getBlock();
      if($p instanceof Player){
-      $data = $this->getConfig();
-      $x = $data->get("well.x");
-      $y = $data->get("well.y");
-      $z = $data->get("well.z");
+      $data = $this->coords;
+      $x = $data->get("x");
+      $y = $data->get("y");
+      $z = $data->get("z");
       if($b->getPosition()->x === $x && $b->getPosition()->y === $y + 2 && $b->getPosition()->z === $z || $b->getPosition()->x === $x && $b->getPosition()->y === $y + 1 && $b->getPosition()->z === $z){
        $pk = new ModalFormRequestPacket();
        $pk->formId = 7382999;
@@ -93,15 +94,15 @@ class Main extends PluginBase implements Listener{
     public function onBlockBreak(BlockBreakEvent $e){
      $p = $e->getPlayer();
      $b = $e->getBlock();
+     $data = $this->coords;
      if(isset($this->set[$p->getName()])){
       $x = $b->getPosition()->x;
       $y = $b->getPosition()->y;
       $z = $b->getPosition()->z;
-      $data = $this->getConfig();
-      if(empty($data->get("well.x")) && empty($data->get("well.y")) && empty($data->get("well.z"))){
-       $data->set("well.x", $x);
-       $data->set("well.y", $y);
-       $data->set("well.z", $z);
+      if(empty($data->get("x")) && empty($data->get("y")) && empty($data->get("z"))){
+       $data->set("x", $x);
+       $data->set("y", $y);
+       $data->set("z", $z);
        $data->save();
        $text = "§bSoul Well\n§l§eRIGHT CLICK";
        $b->getPosition()->getWorld()->addParticle(new Vector3($x + 0.5, $y + 2, $z + 0.5), new FloatingTextParticle('', $text));
@@ -115,16 +116,15 @@ class Main extends PluginBase implements Listener{
       $e->cancel();
       return;
      }
-     $data = $this->getConfig();
-     if(!empty($data->get("well.x")) && !empty($data->get("well.y")) && !empty($data->get("well.z"))){
-      $x = $data->get("well.x");
-      $y = $data->get("well.y");
-      $z = $data->get("well.z");
+     if(!empty($data->get("x")) && !empty($data->get("y")) && !empty($data->get("z"))){
+      $x = $data->get("x");
+      $y = $data->get("y");
+      $z = $data->get("z");
       if($b->getPosition()->x === $x && $b->getPosition()->y === $y + 2 && $b->getPosition()->z === $z || $b->getPosition()->x === $x && $b->getPosition()->y === $y + 1  && $b->getPosition()->z === $z){
        if($this->getServer()->isOp($p->getName())){
-        $data->remove("well.x");
-        $data->remove("well.y");
-        $data->remove("well.z");
+        $data->remove("x");
+        $data->remove("y");
+        $data->remove("z");
         $data->save();
         $p->sendMessage("§f§lSoulWell§r§f: §7§oSoulWell successfully remove§r§f!");
        }else{
