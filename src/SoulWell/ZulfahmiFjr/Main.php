@@ -71,14 +71,15 @@ class Main extends PluginBase implements Listener{
        $pk = new ModalFormRequestPacket();
        $pk->formId = 7382999;
        $message = "§f       _________________________\n           §6§lSoul Well by Hypixel\n§r§f       -------------------------\n";
-       if(!empty($this->getConfig()->get("message"))){
-        if(is_array($this->getConfig()->get("message"))){
-         foreach($this->getConfig()->get("message") as $text){
+       $messageData = $this->getConfig()->get("message");
+       if(!empty($messageData)){
+        if(is_array($messageData)){
+         foreach($messageData as $text){
           $text = str_replace(["{KEY}", "{PLAYER}"], [$this->souls->get(strtolower($p->getName())), $p->getName()], $text);
           $message .= "{$text}§r\n\n";
          }
-        }else{
-         $text = str_replace(["{KEY}", "{PLAYER}"], [$this->souls->get(strtolower($p->getName())), $p->getName()], $this->getConfig()->get("message"));
+        }else if(is_string($messageData)){
+         $text = str_replace(["{KEY}", "{PLAYER}"], [$this->souls->get(strtolower($p->getName())), $p->getName()], $messageData);
          $message .= "{$text}§r\n\n";
         }
        }
