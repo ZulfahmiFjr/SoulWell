@@ -27,6 +27,7 @@ class Main extends PluginBase implements Listener{
 
     public $wellItems;
     public $souls;
+    public $coords;
     public $set = array();
 
     public function onEnable():void{
