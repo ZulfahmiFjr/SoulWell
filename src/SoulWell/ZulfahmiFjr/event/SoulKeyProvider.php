@@ -21,7 +21,7 @@ class SoulKeyProvider implements Listener{
 		$tags = explode('.', $tag->getName(), 2);
 		$key = "";
         $p = $e->getPlayer();
-		if($tags[0] !== 'soulwell' || count($tags) < 2) return;
+        if($tags[0] !== 'soulwell' || count($tags) < 2) return;
         if($tags[1] === "soulkey"){
             $soul = $this->pl->souls->get(strtolower($p->getName()), 0);
             $newTag = new ScoreTag("soulwell.soulkey", (string) $soul);
