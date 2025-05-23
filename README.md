@@ -5,7 +5,7 @@
   <i>Supports PMMP API 5.0.0+</i>
 </p>
 
-<table> <tr> <td><img src="https://1.bp.blogspot.com/-olWvczoyzGc/XvgRyuHRH9I/AAAAAAAAAC8/yVPSF1naxAAWVzvuxGslbDrKUceYKiqGgCK4BGAsYHg/s1920/Screenshot_2020-06-28-10-35-27-306_com.mojang.png" width="600"/></td> <td><img src="https://1.bp.blogspot.com/-QkEkQaUq5cY/XvgRyak50TI/AAAAAAAAAC4/x-64flc0ptkAwM-fPSd-tGJbyNMcX1FWwCK4BGAsYHg/s1920/Screenshot_2020-06-28-10-35-35-368_com.mojang.png" width="600"/></td> <td><img src="https://i.imgur.com/j1BhXhI.png" width="600"/></td> </tr> </table>
+<table> <tr> <td><img src="https://1.bp.blogspot.com/-olWvczoyzGc/XvgRyuHRH9I/AAAAAAAAAC8/yVPSF1naxAAWVzvuxGslbDrKUceYKiqGgCK4BGAsYHg/s1920/Screenshot_2020-06-28-10-35-27-306_com.mojang.png" width="600"/></td> <td><img src="https://1.bp.blogspot.com/-QkEkQaUq5cY/XvgRyak50TI/AAAAAAAAAC4/x-64flc0ptkAwM-fPSd-tGJbyNMcX1FWwCK4BGAsYHg/s1920/Screenshot_2020-06-28-10-35-35-368_com.mojang.png" width="600"/></td> <td><img src="https://i.imgur.com/olhFvPl.png" width="600"/></td> </tr> </table>
 
 ---
 
