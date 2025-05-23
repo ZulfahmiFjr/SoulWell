@@ -24,7 +24,7 @@
 - 🖼 Modern popup UI with confirmation
 - ⚙️ Easy to configure and customize
 - 📊 ScoreHud integration with `{soulwell.soulkey}` tag to display Soul Key count
-- 🖥️ Custom Soulwell Chest UI for all players (Pocket & Windows)  
+- 🖥️ Custom Soulwell Chest UI for all devices (Pocket & Windows)  
   - Enable via config: `classic-chest-rp: true`  
   - When enabled, players must **download the resource pack** before joining 
 
