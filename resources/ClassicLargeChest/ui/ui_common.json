@@ -1,0 +1,40 @@
+ {
+  "namespace": "common",
+ "common_panel_custom": {
+    "type": "panel",
+    "$dialog_background|default": "common.dialog_background_opaque",
+    "$show_close_button|default": true,
+    "$close_button_visible_binding_name|default": "#close_button_visible",
+    "$close_button_offset|default": [ 0, 0 ],
+    "$close_button_layer|default": 2,
+    "$use_compact_close_button|default": false,
+    "$show_divider|default": false,
+    "$divider_offset|default": [ "42.5%", "22px" ],
+    "$divider_visible_binding_name|default": "",
+    "$divider_visible_binding_type|default": "none",
+    "$divider_size|default": [ "5px", "100% - 29px" ],
+    "controls": [
+      {
+        "bg_image@$dialog_background": {
+          "layer": 1
+        }
+      },
+      {
+        "dialog_divider@common.dialog_divider": {
+          "visible": "$show_divider",
+          "anchor_from": "top_left",
+          "anchor_to": "top_left",
+          "offset": "$divider_offset",
+          "size": "$divider_size",
+          "bindings": [
+            {
+              "binding_name": "$divider_visible_binding_name",
+              "binding_name_override": "#visible",
+              "binding_type": "$divider_visible_binding_type"
+            }
+          ]
+        }
+      }
+    ]
+  }
+}

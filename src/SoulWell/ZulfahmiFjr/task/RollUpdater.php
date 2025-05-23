@@ -33,7 +33,7 @@ class RollUpdater extends Task{
      $this->delay = $delay;
      $playerPos = $p->getPosition();
      $menu = InvMenu::create(InvMenu::TYPE_DOUBLE_CHEST);
-     $menu->setName("Soul Well");
+     $menu->setName("§l§fSoul Well");
      $menu->setListener(InvMenu::readonly());
      $menu->setInventoryCloseListener(function(Player $p):void{
       $this->closeInventory($p);

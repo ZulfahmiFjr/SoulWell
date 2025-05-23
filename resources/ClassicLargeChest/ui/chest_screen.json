@@ -1,22 +1,81 @@
 {
   "namespace": "chest",
     "large_chest_screen@common.inventory_screen_common": {
+        "$atitle": "$container_title",
+        "$soulwell": "(not (($atitle- '§l§fSoul Well') = $atitle))",
         "$close_on_player_hurt|default": true,
         "$use_custom_pocket_toast|default": false,
         "close_on_player_hurt": "$close_on_player_hurt",
         "use_custom_pocket_toast": "$use_custom_pocket_toast",
         "variables": [
+            {
+                "requires": "$soulwell",
+                "$screen_content": "chest.soulwell_chest_panel",
+                "$screen_bg_content": "common.screen_background",
+                "$screen_background_alpha": 0.4
+            },
+            {
+                "requires": "($desktop_screen and not $soulwell)",
+                "$screen_content": "chest.large_chest_panel",
+                "$screen_bg_content": "common.screen_background",
+                "$screen_background_alpha": 0.4
+            },
+            {
+                "requires": "($pocket_screen and not $soulwell)",
+                "$use_custom_pocket_toast": true,
+                "$screen_content": "pocket_containers.large_chest_panel"
+            }
+        ]
+    },
+    "soulwell_chest_panel": {
+        "type": "panel",
+        "controls": [
+        { "container_gamepad_helpers@common.container_gamepad_helpers": {} },
         {
-            "requires": "$desktop_screen",
-            "$screen_content": "chest.large_chest_panel",
-            "$screen_bg_content": "common.screen_background",
-            "$screen_background_alpha": 0.4
+            "selected_item_details_factory@common.selected_item_details_factory": {
+            "control_name": "@chest.selected_item_details"
+            }
         },
         {
-            "requires": "$pocket_screen",
-            "$screen_content": "chest.large_chest_panel",
-            "$screen_bg_content": "common.screen_background",
-            "$screen_background_alpha": 0.4
+            "item_lock_notification_factory@common.item_lock_notification_factory": {
+            "control_name": "@common.item_lock_notification"
+            }
+        },
+        {
+            "root_panel@common.root_panel": {
+            "size": [ 176, 145 ],
+            "layer": 1,
+            "controls": [
+                { "common_panel@common.common_panel_custom": {} },
+                {
+                    "chest_panel": {
+                        "type": "panel",
+                        "layer": 5,
+                        "controls": [
+                        { "large_chest_panel_top_half@chest.large_chest_panel_top_half": {} },
+                        { "flying_item_renderer@common.flying_item_renderer": { "layer": 15 } }
+                        ]
+                    }
+                },
+                { "inventory_selected_icon_button@common.inventory_selected_icon_button": {} },
+                { "gamepad_cursor@common.gamepad_cursor_button": {} }
+            ]
+          }
+        }
+      ]
+    },
+     "large_chest_panel_top_half": {
+        "type": "panel",
+        "size": [ "100%", 132 ],
+        "offset": [ 0, 11 ],
+        "anchor_to": "top_left",
+        "anchor_from": "top_left",
+        "controls": [
+        { "chest_label@chest.chest_label": {} },
+        {
+            "large_chest_grid@chest.large_chest_grid": {
+            "offset": [ 7, 10 ]
+            }
         }
         ]
     }
