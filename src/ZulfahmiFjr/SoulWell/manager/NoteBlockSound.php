@@ -1,6 +1,6 @@
 <?php
 
-namespace SoulWell\ZulfahmiFjr\manager;
+namespace ZulfahmiFjr\SoulWell\manager;
 
 use pocketmine\world\sound\Sound;
 use pocketmine\math\Vector3;

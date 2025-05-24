@@ -1,10 +1,10 @@
 <?php
 
-namespace SoulWell\ZulfahmiFjr\event;
+namespace ZulfahmiFjr\SoulWell\event;
 
 use pocketmine\event\Listener;
 
-use SoulWell\ZulfahmiFjr\Main;
+use ZulfahmiFjr\SoulWell\Main;
 use Ifera\ScoreHud\event\TagsResolveEvent;
 use Ifera\ScoreHud\scoreboard\ScoreTag;
 

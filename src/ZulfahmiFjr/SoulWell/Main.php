@@ -1,6 +1,8 @@
 <?php
 
-namespace SoulWell\ZulfahmiFjr;
+/* SoulWell Plugin Made By ZulfahmiFjr 2020 */
+
+namespace ZulfahmiFjr\SoulWell;
 
 use pocketmine\plugin\PluginBase;
 use pocketmine\event\Listener;
@@ -23,8 +25,8 @@ use pocketmine\command\CommandSender;
 use pocketmine\command\Command;
 
 use muqsit\invmenu\InvMenuHandler;
-use SoulWell\ZulfahmiFjr\event\SoulKeyProvider;
-use SoulWell\ZulfahmiFjr\task\RollUpdater;
+use ZulfahmiFjr\SoulWell\event\SoulKeyProvider;
+use ZulfahmiFjr\SoulWell\task\RollUpdater;
 
 class Main extends PluginBase implements Listener{
 
@@ -75,7 +77,6 @@ class Main extends PluginBase implements Listener{
       Filesystem::recursiveUnlink(Path::join($this->getDataFolder().'ClassicLargeChest'));
       $this->loadPack();
      }
-     $this->getLogger()->info("SoulWell Plugin Made By ZulfahmiFjr");
     }
 
     public function onDisable():void{

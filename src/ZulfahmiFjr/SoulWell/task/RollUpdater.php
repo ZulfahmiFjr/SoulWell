@@ -1,6 +1,6 @@
 <?php
 
-namespace SoulWell\ZulfahmiFjr\task;
+namespace ZulfahmiFjr\SoulWell\task;
 
 use pocketmine\scheduler\Task;
 use pocketmine\player\Player;
@@ -13,9 +13,9 @@ use pocketmine\item\StringToItemParser;
 use pocketmine\item\enchantment\StringToEnchantmentParser;
 use pocketmine\item\enchantment\EnchantmentInstance;
 
-use SoulWell\ZulfahmiFjr\Main;
+use ZulfahmiFjr\SoulWell\Main;
 use muqsit\invmenu\InvMenu;
-use SoulWell\ZulfahmiFjr\manager\NoteBlockSound;
+use ZulfahmiFjr\SoulWell\manager\NoteBlockSound;
 
 class RollUpdater extends Task{
 

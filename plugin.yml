@@ -1,7 +1,7 @@
 name: SoulWelll
-main: SoulWell\ZulfahmiFjr\Main
+main: ZulfahmiFjr\SoulWell\Main
 author: ZulfahmiFjr
-version: 1.4
+version: 1.5
 api: 5.0.0
 
 commands:
