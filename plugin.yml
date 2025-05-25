@@ -2,7 +2,7 @@ name: SoulWell
 main: ZulfahmiFjr\SoulWell\Main
 author: ZulfahmiFjr
 version: 1.5
-api: 5.3.0
+api: 5.27.0
 
 commands:
     soulwell:
