@@ -1,6 +1,7 @@
 name: SoulWell
 main: ZulfahmiFjr\SoulWell\Main
 author: ZulfahmiFjr
+description: Lucky Draw Plugin inspired by Hypixel's Soul Well
 version: 1.5
 api: 5.27.0
 
