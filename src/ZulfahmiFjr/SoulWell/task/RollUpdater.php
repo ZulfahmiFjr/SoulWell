@@ -7,11 +7,11 @@ use pocketmine\player\Player;
 use pocketmine\world\Position;
 use pocketmine\item\Item;
 use pocketmine\block\VanillaBlocks;
-use pocketmine\item\ItemTypeIds;
 use pocketmine\block\utils\DyeColor;
 use pocketmine\item\StringToItemParser;
 use pocketmine\item\enchantment\StringToEnchantmentParser;
 use pocketmine\item\enchantment\EnchantmentInstance;
+use pocketmine\world\sound\XpLevelUpSound;
 
 use ZulfahmiFjr\SoulWell\Main;
 use ZulfahmiFjr\SoulWell\libs\muqsit\invmenu\InvMenu;
@@ -19,12 +19,11 @@ use ZulfahmiFjr\SoulWell\manager\NoteBlockSound;
 
 class RollUpdater extends Task{
 
-    private $pl;
-    private $p;
-    private $delay;
+    private const DELAYS = [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 3, 3, 3, 3, 4, 4, 4, 5, 5, 5, 7, 9, 12, 16, 22];
+
+    private Main $pl;
+    private Player $p;
     private $wellMenu;
-    private $note = 12;
-    private $low = 0;
     private int $rolls;
     private array $columns = [];
     private array $predictions = [];
@@ -35,11 +34,13 @@ class RollUpdater extends Task{
     private bool $settled = false;
     private int $waiting = 0;
     private int $ready = 0;
+    private int $stepIndex = 0;
+    private int $stepCooldown = 0;
+    private int $finishCooldown = 15;
 
-    public function __construct(Main $pl, Player $p, int $delay, int $rolls = 1){
+    public function __construct(Main $pl, Player $p, int $delay = 0, int $rolls = 1){
      $this->pl = $pl;
      $this->p = $p;
-     $this->delay = $delay;
      $this->rolls = $rolls;
      $this->columns = $rolls === 5 ? [0, 2, 4, 6, 8] : ($rolls === 3 ? [2, 4, 6] : [4]);
      $menu = InvMenu::create(InvMenu::TYPE_DOUBLE_CHEST);
@@ -60,19 +61,14 @@ class RollUpdater extends Task{
       return;
      }
      $this->settled = true;
-     if((!is_null($this->getHandler())) && (!$this->getHandler()->isCancelled())){
-      foreach($this->columns as $c){
-       $item = $this->predictions[$c] ?? null;
-       if($item === null || $item->isNull()){
-        $item = $this->getReward();
-       }
-       if($item !== null && !$item->isNull() && $p->isOnline()){
-        $this->addItemToPlayer($p, $item);
-        $p->sendMessage("§f§lSoulWell§r§f: §7§oYou get §r§f".$item->getName()." §7§owith amount §r§f".$item->getCount()." §7§ofrom SoulWell§r§f.");
-       }
+     foreach($this->columns as $c){
+      $item = $this->predictions[$c] ?? $this->getReward();
+      if($item !== null && !$item->isNull() && $p->isOnline()){
+       $this->addItemToPlayer($p, $item);
+       $p->sendMessage("§f§lSoulWell§r§f: §7§oYou get §r§f".$item->getName()." §7§owith amount §r§f".$item->getCount()." §7§ofrom SoulWell§r§f.");
       }
-      $this->finish();
      }
+     $this->finish();
     }
 
     public function getReward():?Item{
@@ -121,107 +117,87 @@ class RollUpdater extends Task{
       return;
      }
      if(!$this->opened){
-      $this->waiting += 3;
-      if($this->waiting >= 200) $this->abort();
+      $this->waiting++;
+      if($this->waiting >= 100) $this->abort();
       return;
      }
      if(!$this->started){
       if($this->p->getCurrentWindow() !== $this->wellMenu){$this->abort();return;}
-      $this->ready += 3;
-      if($this->ready < 20) return;
+      $this->ready++;
+      if($this->ready < 10) return;
       $this->started = true;
       $this->pl->getLogger()->info("SoulWell rolling ".$this->rolls." column(s) for ".$this->p->getName());
      }
-     $delay = $this->delay;
      $p = $this->p;
      $wellInventory = $this->wellMenu;
-     if(($p instanceof Player) && ($p->isOnline())){
-      if($this->low <= 0){
-       if($this->delay <= 13){
-        if($this->delay > 0){
-         $this->low += 13 / $this->delay;
+     if($this->stepIndex < count(self::DELAYS)){
+      if($this->stepCooldown > 0){
+       $this->stepCooldown--;
+       return;
+      }
+      $i = 0;
+      $colors = DyeColor::getAll();
+      $itemEndRod = VanillaBlocks::END_ROD()->asItem();
+      while($i < 54){
+       $col = $i % 9;
+       $row = intdiv($i, 9);
+       if(!in_array($col, $this->columns, true)){
+        if($row === 3 && $col >= min($this->columns) - 1 && $col <= max($this->columns) + 1){
+         $wellInventory->setItem($i, $itemEndRod);
         }else{
-         $this->low = 0;
+         $randomColor = $colors[array_rand($colors)];
+         $wellInventory->setItem($i, VanillaBlocks::STAINED_GLASS_PANE()->setColor($randomColor)->asItem());
         }
        }
-       $this->delay--;
-       if($delay >= 0){
-        $i = 0;
-        $colors = DyeColor::getAll();
-        $itemEndRod = VanillaBlocks::END_ROD()->asItem();
-        while($i < 54){
-         $col = $i % 9;
-         $row = intdiv($i, 9);
-         if(!in_array($col, $this->columns, true)){
-          if($row === 3 && $col >= min($this->columns) - 1 && $col <= max($this->columns) + 1){
-           $wellInventory->setItem($i, $itemEndRod);
-          }else{
-           $randomColor = $colors[array_rand($colors)];
-           $wellInventory->setItem($i, VanillaBlocks::STAINED_GLASS_PANE()->setColor($randomColor)->asItem());
-          }
-         }
-         $i++;
-        }
-        if($this->note === 11 || $this->note === 12){
-         $p->getWorld()->addSound($p->getPosition(), new NoteBlockSound(5), [$p]);
-         if($this->note === 11){
-          $this->note = 2;
-         }else if($this->note === 12){
-          $this->note = 0;
-         }
-        }else if($this->note === 0){
-         $p->getWorld()->addSound($p->getPosition(), new NoteBlockSound(2), [$p]);
-         $this->note = 11;
-        }else if($this->note === 2){
-         $p->getWorld()->addSound($p->getPosition(), new NoteBlockSound(9), [$p]);
-         $this->note = 12;
-        }
-        foreach($this->columns as $c){
-         $item = $this->getReward();
-         if($item === null){$this->abort();return;}
-         if($item !== null){
-          $wellInventory->setItem($c + 45, $wellInventory->getItem($c + 36));
-          $wellInventory->setItem($c + 36, $wellInventory->getItem($c + 27));
-          $wellInventory->setItem($c + 27, $wellInventory->getItem($c + 18));
-          $wellInventory->setItem($c + 18, $wellInventory->getItem($c + 9));
-          $wellInventory->setItem($c + 9, $wellInventory->getItem($c));
-          $wellInventory->setItem($c, $item);
-          if($delay === 3){
-           $this->predictions[$c] = $item;
-          }
-         }
-        }
-       }
-      }else{
-       $this->low--;
+       $i++;
       }
-      if($delay === -1){
-       foreach($this->columns as $c){
-        $wellInventory->setItem($c, VanillaBlocks::AIR()->asItem());
-        $wellInventory->setItem($c + 9, VanillaBlocks::AIR()->asItem());
-        $wellInventory->setItem($c + 18, VanillaBlocks::AIR()->asItem());
-        $wellInventory->setItem($c + 36, VanillaBlocks::AIR()->asItem());
-        $wellInventory->setItem($c + 45, VanillaBlocks::AIR()->asItem());
+      $note = $this->stepIndex >= count(self::DELAYS) - 5 ? match(count(self::DELAYS) - 1 - $this->stepIndex){ 0 => 24, 1 => 20, 2 => 18, 3 => 16, default => 14 } : match($this->stepIndex % 4){ 0 => 5, 1 => 2, 2 => 9, default => 12 };
+      $p->getWorld()->addSound($p->getPosition(), new NoteBlockSound($note), [$p]);
+      foreach($this->columns as $c){
+       $item = $this->getReward();
+       if($item === null){$this->abort();return;}
+       $wellInventory->setItem($c + 45, $wellInventory->getItem($c + 36));
+       $wellInventory->setItem($c + 36, $wellInventory->getItem($c + 27));
+       $wellInventory->setItem($c + 27, $wellInventory->getItem($c + 18));
+       $wellInventory->setItem($c + 18, $wellInventory->getItem($c + 9));
+       $wellInventory->setItem($c + 9, $wellInventory->getItem($c));
+       $wellInventory->setItem($c, $item);
+       if($this->stepIndex === count(self::DELAYS) - 4){
+        $this->predictions[$c] = $item;
        }
       }
-      if($delay === -15){
-       $this->settled = true;
-       foreach($this->columns as $c){
-        $item = $wellInventory->getItem($c + 27);
-        if(!$item->isNull()){
-         $this->addItemToPlayer($p, $item);
-         $p->sendMessage("§f§lSoulWell§r§f: §7§oYou get §r§f".$item->getName()." §7§owith amount §r§f".$item->getCount()." §7§ofrom SoulWell§r§f.");
-        }
-       }
-       $p->getWorld()->addSound($p->getPosition(), new \pocketmine\world\sound\XpLevelUpSound(30), [$p]);
-       $this->finish();
-       $p->removeCurrentWindow();
+      $this->stepCooldown = self::DELAYS[$this->stepIndex] - 1;
+      $this->stepIndex++;
+      return;
+     }
+     if($this->finishCooldown === 15){
+      foreach($this->columns as $c){
+       $wellInventory->setItem($c, VanillaBlocks::AIR()->asItem());
+       $wellInventory->setItem($c + 9, VanillaBlocks::AIR()->asItem());
+       $wellInventory->setItem($c + 18, VanillaBlocks::AIR()->asItem());
+       $wellInventory->setItem($c + 36, VanillaBlocks::AIR()->asItem());
+       $wellInventory->setItem($c + 45, VanillaBlocks::AIR()->asItem());
       }
      }
+     if($this->finishCooldown > 0){
+      $this->finishCooldown--;
+      return;
+     }
+     $this->settled = true;
+     foreach($this->columns as $c){
+      $item = $wellInventory->getItem($c + 27);
+      if(!$item->isNull()){
+       $this->addItemToPlayer($p, $item);
+       $p->sendMessage("§f§lSoulWell§r§f: §7§oYou get §r§f".$item->getName()." §7§owith amount §r§f".$item->getCount()." §7§ofrom SoulWell§r§f.");
+      }
+     }
+     $p->getWorld()->addSound($p->getPosition(), new XpLevelUpSound(30), [$p]);
+     $this->finish();
+     $p->removeCurrentWindow();
     }
 
     private function addItemToPlayer(Player $p, Item $item):void{
-     $p->getInventory()->addItem($item);
+     foreach($p->getInventory()->addItem($item) as $leftover) $p->getWorld()->dropItem($p->getPosition(), $leftover);
     }
 
     private function finish():void{

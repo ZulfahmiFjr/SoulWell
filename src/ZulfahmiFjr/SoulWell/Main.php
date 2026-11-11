@@ -237,7 +237,7 @@ class Main extends PluginBase implements Listener{
         $this->souls->save();
         $roll = new RollUpdater($this, $p, 100, $rolls);
         $this->rolls[$name] = $roll;
-        $this->getScheduler()->scheduleRepeatingTask($roll, 3);
+        $this->getScheduler()->scheduleRepeatingTask($roll, 1);
        }
       }
      }
