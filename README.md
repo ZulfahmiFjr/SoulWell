@@ -2,7 +2,7 @@
 
 <p align="center">
   <b>Lucky Draw Plugin inspired by Hypixel's Soul Well</b><br>
-  <i>Supports PMMP API 5.0.0+</i>
+  <i>Latest Version: <b>v1.6.5</b> | Supports PMMP API 5.0.0+</i>
 </p>
 
 <table> <tr> <td><img src="https://1.bp.blogspot.com/-olWvczoyzGc/XvgRyuHRH9I/AAAAAAAAAC8/yVPSF1naxAAWVzvuxGslbDrKUceYKiqGgCK4BGAsYHg/s1920/Screenshot_2020-06-28-10-35-27-306_com.mojang.png" width="600"/></td> <td><img src="https://1.bp.blogspot.com/-QkEkQaUq5cY/XvgRyak50TI/AAAAAAAAAC4/x-64flc0ptkAwM-fPSd-tGJbyNMcX1FWwCK4BGAsYHg/s1920/Screenshot_2020-06-28-10-35-35-368_com.mojang.png" width="600"/></td> <td><img src="https://i.imgur.com/olhFvPl.png" width="600"/></td> </tr> </table>
@@ -11,22 +11,47 @@
 
 ## 📥 Download
 
-🔗 [**Download Latest .phar**](https://poggit.pmmp.io/r/256010/SoulWell.phar)  
-🔧 Compatible with **PocketMine-MP API 5.0.0**
+🔗 [**Download Latest .phar (v1.6.5)**](https://poggit.pmmp.io/r/256010/SoulWell.phar)  
+🔧 Compatible with **PocketMine-MP API 5.0.0 - 5.27.0+**
 
 ---
 
 ## 🧿 Features
 
-- 🎮 Inspired by Hypixel’s Soul Well system
-- 🪙 Requires Soul Keys for access
-- 📦 Randomized reward system
-- 🖼 Modern popup UI with confirmation
-- ⚙️ Easy to configure and customize
-- 📊 ScoreHud integration with `{soulwell.soulkey}` tag to display Soul Key count
-- 🖥️ Custom Soulwell Chest UI for all devices (Pocket & Windows)  
-  - Enable via config: `classic-chest-rp: true`  
-  - When enabled, players must **download the resource pack** before joining 
+- 🎮 **Hypixel Soul Well Experience**: Authentic lucky draw roulette inspired by Hypixel's SkyWars Soul Well.
+- 🎰 **Multi-Roll System**: Open **1x Roll** (10 Keys), **3x Roll** (30 Keys), or **5x Roll** (50 Keys) at once in multi-column chest displays.
+- ⚡ **Smooth Deceleration Physics**: Roulette spins start ultra-fast (1-tick rate) and progressively decelerate across smooth timing curves before landing on the winning center row.
+- 🔊 **Dynamic Audio Feedback**: Realistic Note Block tick sounds with rising pitch during deceleration, followed by a triumphant level-up chime upon reward delivery.
+- 🛡️ **Anti-Loss & Auto-Refund**: Comprehensive session protection that automatically refunds Soul Keys if a roll is interrupted, window-closed, or disconnected before starting.
+- 📱 **Mobile-Friendly & Case-Insensitive**: Supports `/sw`, `/soulwell`, `/SoulWell`, and `/SOULWELL` without unknown command errors on mobile keyboards.
+- ⌨️ **Unified Command System**: Simplified `/sw` hub command (`/sw create`, `/sw key`, `/sw info`).
+- 🪙 **Soul Keys Currency**: Configurable per-player key balance stored securely.
+- 📦 **Customizable Loot Table**: Add custom items, amounts, custom names, lore, and enchantments in `config.yml`.
+- 📊 **ScoreHud Integration**: Built-in `{soulwell.soulkey}` score tag to show player key counts on scoreboards.
+- 🖥️ **Custom Large Chest UI Resource Pack**: Classic large chest UI for Pocket and Windows 10 editions (`classic-chest-rp: true`).
+
+---
+
+## 📸 In-Game Screenshots
+
+<table align="center">
+  <tr>
+    <td align="center"><b>Multi-Roll Selection Menu</b></td>
+    <td align="center"><b>1x Roll GUI</b></td>
+  </tr>
+  <tr>
+    <td><img src="screenshots/confirm_menu.jpg" width="450"/></td>
+    <td><img src="screenshots/roll_1x.jpg" width="450"/></td>
+  </tr>
+  <tr>
+    <td align="center"><b>3x Multi-Roll GUI</b></td>
+    <td align="center"><b>5x Multi-Roll GUI</b></td>
+  </tr>
+  <tr>
+    <td><img src="screenshots/roll_3x.jpg" width="450"/></td>
+    <td><img src="screenshots/roll_5x.jpg" width="450"/></td>
+  </tr>
+</table>
 
 ---
 
@@ -45,15 +70,29 @@ Check out SoulWell in action on YouTube:
 
 ## 🧾 How to Use
 
-1. 🔧 Run /addwell to mark a SoulWell spot (admin only).
-2. ⛏ Break a block where the SoulWell should appear (admin setup).
-3. ✋ Punch the SoulWell block to interact with it.
-4. 🗝 Make sure you've got at least **10 Soul Keys** before trying to open.
-5. 🎉 Hit "Open SoulWell", cross your fingers, and wait for your random loot!
+1. 🔧 Run `/sw create` and break 1 block to place the SoulWell altar (admin only).
+2. ✋ Right-click or tap the SoulWell block to open the menu.
+3. 🗝 Select your desired roll mode:
+   - **1x Roll** (10 Soul Keys)
+   - **3x Roll** (30 Soul Keys)
+   - **5x Roll** (50 Soul Keys)
+4. 🎉 Watch the animated roulette spin down smoothly and claim your random loot!
+5. 🎁 Admins can give Soul Keys to players anytime using `/sw key [player-name] [count]`.
 
 ---
 
-## 📸 Preview
+## 💻 Commands & Permissions
+
+| Command | Description | Permission |
+| :--- | :--- | :--- |
+| `/sw` or `/soulwell` | View available SoulWell subcommands | `soulwell.command` (default: true) |
+| `/sw info` | Show plugin information & author contacts | `soulwell.command` (default: true) |
+| `/sw create` | Place a new SoulWell altar block | Operator only |
+| `/sw key <player> <amount>` | Add Soul Keys to a player | Operator only |
+
+---
+
+## 📸 Classic Altar Preview
 
 <p align="center">
   <img src="https://github.com/ZulfahmiFjr/SoulWell/blob/master/icon.png?raw=true" width="400"/>
