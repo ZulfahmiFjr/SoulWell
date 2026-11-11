@@ -11,24 +11,24 @@
 
 ## 📥 Download
 
-🔗 [**Download Latest .phar (v1.6.5)**](https://poggit.pmmp.io/r/256010/SoulWell.phar)  
-🔧 Compatible with **PocketMine-MP API 5.0.0 - 5.27.0+**
+[**Download Latest .phar (v1.6.5)**](https://poggit.pmmp.io/r/256010/SoulWell.phar)  
+Compatible with **PocketMine-MP API 5.0.0 - 5.27.0+**
 
 ---
 
 ## 🧿 Features
 
-- 🎮 **Hypixel Soul Well Experience**: Authentic lucky draw roulette inspired by Hypixel's SkyWars Soul Well.
-- 🎰 **Multi-Roll System**: Open **1x Roll** (10 Keys), **3x Roll** (30 Keys), or **5x Roll** (50 Keys) at once in multi-column chest displays.
-- ⚡ **Smooth Deceleration Physics**: Roulette spins start ultra-fast (1-tick rate) and progressively decelerate across smooth timing curves before landing on the winning center row.
-- 🔊 **Dynamic Audio Feedback**: Realistic Note Block tick sounds with rising pitch during deceleration, followed by a triumphant level-up chime upon reward delivery.
-- 🛡️ **Anti-Loss & Auto-Refund**: Comprehensive session protection that automatically refunds Soul Keys if a roll is interrupted, window-closed, or disconnected before starting.
-- 📱 **Mobile-Friendly & Case-Insensitive**: Supports `/sw`, `/soulwell`, `/SoulWell`, and `/SOULWELL` without unknown command errors on mobile keyboards.
-- ⌨️ **Unified Command System**: Simplified `/sw` hub command (`/sw create`, `/sw key`, `/sw info`).
-- 🪙 **Soul Keys Currency**: Configurable per-player key balance stored securely.
-- 📦 **Customizable Loot Table**: Add custom items, amounts, custom names, lore, and enchantments in `config.yml`.
-- 📊 **ScoreHud Integration**: Built-in `{soulwell.soulkey}` score tag to show player key counts on scoreboards.
-- 🖥️ **Custom Large Chest UI Resource Pack**: Classic large chest UI for Pocket and Windows 10 editions (`classic-chest-rp: true`).
+- **Hypixel Soul Well Experience**: Authentic lucky draw roulette inspired by Hypixel's SkyWars Soul Well.
+- **Multi-Roll System**: Open **1x Roll** (10 Keys), **3x Roll** (30 Keys), or **5x Roll** (50 Keys) at once in multi-column chest displays.
+- **Smooth Deceleration Physics**: Roulette spins start ultra-fast (1-tick rate) and progressively decelerate across smooth timing curves before landing on the winning center row.
+- **Dynamic Audio Feedback**: Realistic Note Block tick sounds with rising pitch during deceleration, followed by a triumphant level-up chime upon reward delivery.
+- **Anti-Loss & Auto-Refund**: Comprehensive session protection that automatically refunds Soul Keys if a roll is interrupted, window-closed, or disconnected before starting.
+- **Mobile-Friendly & Case-Insensitive**: Supports `/sw`, `/soulwell`, `/SoulWell`, and `/SOULWELL` without unknown command errors on mobile keyboards.
+- **Unified Command System**: Simplified `/sw` hub command (`/sw create`, `/sw key`, `/sw info`).
+- **Soul Keys Currency**: Configurable per-player key balance stored securely.
+- **Customizable Loot Table**: Add custom items, amounts, custom names, lore, and enchantments in `config.yml`.
+- **ScoreHud Integration**: Built-in `{soulwell.soulkey}` score tag to show player key counts on scoreboards.
+- **Custom Large Chest UI Resource Pack**: Classic large chest UI for Pocket and Windows 10 editions (`classic-chest-rp: true`).
 
 ---
 
@@ -70,14 +70,14 @@ Check out SoulWell in action on YouTube:
 
 ## 🧾 How to Use
 
-1. 🔧 Run `/sw create` and break 1 block to place the SoulWell altar (admin only).
-2. ✋ Right-click or tap the SoulWell block to open the menu.
-3. 🗝 Select your desired roll mode:
+1. Run `/sw create` and break 1 block to place the SoulWell altar (admin only).
+2. Right-click or tap the SoulWell block to open the menu.
+3. Select your desired roll mode:
    - **1x Roll** (10 Soul Keys)
    - **3x Roll** (30 Soul Keys)
    - **5x Roll** (50 Soul Keys)
-4. 🎉 Watch the animated roulette spin down smoothly and claim your random loot!
-5. 🎁 Admins can give Soul Keys to players anytime using `/sw key [player-name] [count]`.
+4. Watch the animated roulette spin down smoothly and claim your random loot!
+5. Admins can give Soul Keys to players anytime using `/sw key [player-name] [count]`.
 
 ---
 
