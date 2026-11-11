@@ -77,7 +77,8 @@ final class ResourcePackService{
      $files["ui/soulwell_ui.json"] = json_encode($ui, $flags);
      $serverForm["main_screen_content"] = $main;
      $files["ui/server_form.json"] = json_encode($serverForm, $flags);
-     $files["ui/_ui_defs.json"] = json_encode(["ui_defs" => array_values(array_unique([...$defs, "ui/soulwell_ui.json"]))], $flags);
+     $ownDefs = json_decode($files["ui/_ui_defs.json"], true, 512, JSON_THROW_ON_ERROR)["ui_defs"];
+     $files["ui/_ui_defs.json"] = json_encode(["ui_defs" => array_values(array_unique([...$defs, ...$ownDefs]))], $flags);
      ksort($files);
      $path = $this->pl->getDataFolder()."resource.zip";
      $temp = $path.".tmp";
