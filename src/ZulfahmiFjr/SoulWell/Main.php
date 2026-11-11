@@ -21,6 +21,8 @@ use pocketmine\network\mcpe\protocol\ModalFormRequestPacket;
 use pocketmine\event\block\BlockBreakEvent;
 use pocketmine\event\server\DataPacketReceiveEvent;
 use pocketmine\event\server\CommandEvent;
+use pocketmine\event\server\DataPacketDecodeEvent;
+use pocketmine\event\EventPriority;
 use pocketmine\network\mcpe\protocol\ModalFormResponsePacket;
 use pocketmine\command\CommandSender;
 use pocketmine\command\Command;
@@ -36,6 +38,8 @@ class Main extends PluginBase implements Listener{
     public $souls;
     public $coords;
     public $set = array();
+    public array $rolls = [];
+    private array $forms = [];
 
     private function loadPack(){
         $manager = $this->getServer()->getResourcePackManager();
@@ -60,6 +64,10 @@ class Main extends PluginBase implements Listener{
      if(!is_dir($this->getDataFolder())) @mkdir($this->getDataFolder());
      $this->getServer()->getPluginManager()->registerEvents($this, $this);
      if(!InvMenuHandler::isRegistered()) InvMenuHandler::register($this);
+     // altay membuang paket latency sbelum decode, izinkan balasan invmenu masuk ke listener
+     $this->getServer()->getPluginManager()->registerEvent(DataPacketDecodeEvent::class, function(DataPacketDecodeEvent $e):void{
+      if($e->getPacketId() === \pocketmine\network\mcpe\protocol\NetworkStackLatencyPacket::NETWORK_ID) $e->uncancel();
+     }, EventPriority::NORMAL, $this, true);
      $this->saveResource("config.yml");
      $this->wellItems = $this->getConfig()->get("items");
      $this->souls = new Config($this->getDataFolder().'souls.yml', Config::YAML);
@@ -82,6 +90,8 @@ class Main extends PluginBase implements Listener{
     }
 
     public function onDisable():void{
+     foreach($this->rolls as $roll) $roll->abort();
+     $this->souls->save();
      if($this->getConfig()->get("classic-chest-rp")){
       $manager = $this->getServer()->getResourcePackManager();
       $resourcePack = new ZippedResourcePack($this->getDataFolder()."resource.zip");
@@ -121,6 +131,9 @@ class Main extends PluginBase implements Listener{
     }
 
     public function onPlayerQuit(PlayerQuitEvent $e){
+     $name = strtolower($e->getPlayer()->getName());
+     if(isset($this->rolls[$name])) $this->rolls[$name]->abort();
+     unset($this->forms[$name]);
      $this->souls->save();
     }
 
@@ -151,6 +164,7 @@ class Main extends PluginBase implements Listener{
        $encode = ["type" => "form", "title" => "§e§lSoul Well Confirm", "content" => "{$message}", "buttons" => [["text" => "§l1x Roll §r§6(10 Soul Keys)"], ["text" => "§l3x Roll §r§6(30 Soul Keys)"], ["text" => "§l5x Roll §r§6(50 Soul Keys)"], ["text" => "§lCancel Opening"]]];
        $data = json_encode($encode);
        $pk->formData = $data;
+       $this->forms[strtolower($p->getName())] = true;
        $p->getNetworkSession()->sendDataPacket($pk);
        $e->cancel();
       }
@@ -204,8 +218,12 @@ class Main extends PluginBase implements Listener{
     public function onPacketReceive(DataPacketReceiveEvent $e){
      $pk = $e->getPacket();
      $p = $e->getOrigin()->getPlayer();
-     if($pk instanceof ModalFormResponsePacket){
+     if($pk instanceof ModalFormResponsePacket && $p instanceof Player){
       $id = $pk->formId;
+      $name = strtolower($p->getName());
+      if($id !== 7382999 || !isset($this->forms[$name])) return;
+      unset($this->forms[$name]);
+      if(isset($this->rolls[$name])) return;
       $data = json_decode($pk->formData ?? "[]", true);
       if($id === 7382999 && isset($data) && is_int($data)){
        $rolls = match($data){ 0 => 1, 1 => 3, 2 => 5, default => 0 };
@@ -217,11 +235,9 @@ class Main extends PluginBase implements Listener{
         }
         $this->souls->set(strtolower($p->getName()), (int) $this->souls->get(strtolower($p->getName()), 0) - $cost);
         $this->souls->save();
-        $this->getScheduler()->scheduleDelayedTask(new ClosureTask(function() use($p, $rolls):void{
-         if($p->isOnline()){
-          $this->getScheduler()->scheduleRepeatingTask(new RollUpdater($this, $p, 100, $rolls), 3);
-         }
-        }), 2);
+        $roll = new RollUpdater($this, $p, 100, $rolls);
+        $this->rolls[$name] = $roll;
+        $this->getScheduler()->scheduleRepeatingTask($roll, 3);
        }
       }
      }

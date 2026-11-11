@@ -27,7 +27,7 @@ final class InvMenuTypeRegistry{
 			->setBlock(VanillaBlocks::CHEST())
 			->setSize(54)
 			->setBlockActorId("Chest")
-			->setAnimationDuration(1)
+			->setAnimationDuration(200)
 		->build());
 
 		$this->register(InvMenuTypeIds::TYPE_HOPPER, InvMenuTypeBuilders::BLOCK_ACTOR_FIXED()

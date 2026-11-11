@@ -103,12 +103,45 @@ final class PlayerNetwork{
 	 * @param Closure(bool) : bool $then
 	 */
 	public function wait(int $type, Closure $then) : void{
-		$then(true);
+		$entry = $this->handler->createNetworkStackLatencyEntry($then);
+		if($this->current !== null){
+			$this->queue->enqueue($entry);
+			$this->entry_types[spl_object_id($entry)] = $type;
+		}else{
+			$this->setCurrent($entry);
+		}
 	}
 
+	/**
+	 * Waits at least $wait_ms before calling $then(true).
+	 *
+	 * @param self::DELAY_TYPE_* $type
+	 * @param int $wait_ms
+	 * @param Closure(bool) : bool $then
+	 */
 	public function waitUntil(int $type, int $wait_ms, Closure $then) : void{
-		$then(true);
+		if($wait_ms <= 0 && $this->queue->isEmpty()){
+			$then(true);
+			return;
+		}
+
+		$elapsed_ms = 0.0;
+		$this->wait($type, function(bool $success) use($wait_ms, $then, &$elapsed_ms) : bool{
+			if($this->current === null){
+				$then(false);
+				return false;
+			}
+
+			$elapsed_ms += (microtime(true) * 1000) - $this->current->sent_at;
+			if(!$success || $elapsed_ms >= $wait_ms){
+				$then($success);
+				return false;
+			}
+
+			return true;
+		});
 	}
+
 	private function setCurrent(?NetworkStackLatencyEntry $entry) : void{
 		if($this->current !== null){
 			$this->processCurrent(false);

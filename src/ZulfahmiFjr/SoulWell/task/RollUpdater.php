@@ -28,6 +28,13 @@ class RollUpdater extends Task{
     private int $rolls;
     private array $columns = [];
     private array $predictions = [];
+    private InvMenu $menu;
+    private bool $sent = false;
+    private bool $opened = false;
+    private bool $started = false;
+    private bool $settled = false;
+    private int $waiting = 0;
+    private int $ready = 0;
 
     public function __construct(Main $pl, Player $p, int $delay, int $rolls = 1){
      $this->pl = $pl;
@@ -35,19 +42,24 @@ class RollUpdater extends Task{
      $this->delay = $delay;
      $this->rolls = $rolls;
      $this->columns = $rolls === 5 ? [0, 2, 4, 6, 8] : ($rolls === 3 ? [2, 4, 6] : [4]);
-     $playerPos = $p->getPosition();
      $menu = InvMenu::create(InvMenu::TYPE_DOUBLE_CHEST);
      $menu->setName("§l§fSoul Well (".$rolls."x Roll)");
      $menu->setListener(InvMenu::readonly());
      $menu->setInventoryCloseListener(function(Player $p):void{
       $this->closeInventory($p);
      });
-     $menu->send($p);
+     $this->menu = $menu;
      $wellMenu = $menu->getInventory();
      $this->wellMenu = $wellMenu;
     }
 
     public function closeInventory(Player $p):void{
+     if($this->settled) return;
+     if(!$this->started){
+      $this->abort();
+      return;
+     }
+     $this->settled = true;
      if((!is_null($this->getHandler())) && (!$this->getHandler()->isCancelled())){
       foreach($this->columns as $c){
        $item = $this->predictions[$c] ?? null;
@@ -59,23 +71,22 @@ class RollUpdater extends Task{
         $p->sendMessage("§f§lSoulWell§r§f: §7§oYou get §r§f".$item->getName()." §7§owith amount §r§f".$item->getCount()." §7§ofrom SoulWell§r§f.");
        }
       }
-      $this->getHandler()->cancel();
+      $this->finish();
      }
     }
 
     public function getReward():?Item{
      $p = $this->p;
      $items = $this->pl->wellItems;
+     if(!is_array($items) || $items === []) return null;
      $reward = array_rand($items, 1);
      $reward = $items[$reward];
      if(!isset($reward["id"]) || !isset($reward["amount"])){
-      $this->pl->souls->set(strtolower($p->getName()), (int) $this->pl->souls->get(strtolower($p->getName()), 0) + 10);
-      $this->pl->souls->save();
-      $p->sendMessage("§f§lSoulWell§r§f: §7§oAn error occurred in the SoulWell system your Soul Keys will be returned soon§r§f, §7§oplease report admin§r§f!");
       return null;
      }
      $idString = $reward["id"];
      $item = StringToItemParser::getInstance()->parse($idString);
+     if($item === null || (int) $reward["amount"] <= 0) return null;
      if(isset($reward["amount"])){
       $item->setCount($reward["amount"]);
      }
@@ -97,6 +108,30 @@ class RollUpdater extends Task{
     }
 
     public function onRun():void{
+     if($this->settled) return;
+     if(!$this->p->isOnline()){$this->abort();return;}
+     if(!$this->sent){
+      $this->sent = true;
+      $this->menu->send($this->p, null, function(bool $success):void{
+       if($this->settled) return;
+       if(!$success){$this->abort();return;}
+       $this->opened = true;
+       $this->pl->getLogger()->info("SoulWell container sent to ".$this->p->getName());
+      });
+      return;
+     }
+     if(!$this->opened){
+      $this->waiting += 3;
+      if($this->waiting >= 200) $this->abort();
+      return;
+     }
+     if(!$this->started){
+      if($this->p->getCurrentWindow() !== $this->wellMenu){$this->abort();return;}
+      $this->ready += 3;
+      if($this->ready < 20) return;
+      $this->started = true;
+      $this->pl->getLogger()->info("SoulWell rolling ".$this->rolls." column(s) for ".$this->p->getName());
+     }
      $delay = $this->delay;
      $p = $this->p;
      $wellInventory = $this->wellMenu;
@@ -143,6 +178,7 @@ class RollUpdater extends Task{
         }
         foreach($this->columns as $c){
          $item = $this->getReward();
+         if($item === null){$this->abort();return;}
          if($item !== null){
           $wellInventory->setItem($c + 45, $wellInventory->getItem($c + 36));
           $wellInventory->setItem($c + 36, $wellInventory->getItem($c + 27));
@@ -169,6 +205,7 @@ class RollUpdater extends Task{
        }
       }
       if($delay === -15){
+       $this->settled = true;
        foreach($this->columns as $c){
         $item = $wellInventory->getItem($c + 27);
         if(!$item->isNull()){
@@ -176,7 +213,7 @@ class RollUpdater extends Task{
          $p->sendMessage("§f§lSoulWell§r§f: §7§oYou get §r§f".$item->getName()." §7§owith amount §r§f".$item->getCount()." §7§ofrom SoulWell§r§f.");
         }
        }
-       $this->getHandler()->cancel();
+       $this->finish();
        $p->removeCurrentWindow();
       }
      }
@@ -184,6 +221,27 @@ class RollUpdater extends Task{
 
     private function addItemToPlayer(Player $p, Item $item):void{
      $p->getInventory()->addItem($item);
+    }
+
+    private function finish():void{
+     unset($this->pl->rolls[strtolower($this->p->getName())]);
+     $this->getHandler()?->cancel();
+    }
+
+    public function abort():void{
+     if($this->settled) return;
+     $this->settled = true;
+     $name = strtolower($this->p->getName());
+     $this->pl->souls->set($name, (int) $this->pl->souls->get($name, 0) + $this->rolls * 10);
+     $this->pl->souls->save();
+     $this->finish();
+     $network = \ZulfahmiFjr\SoulWell\libs\muqsit\invmenu\InvMenuHandler::getPlayerManager()->getNullable($this->p)?->network;
+     $network?->dropPending();
+     if($this->p->isOnline()){
+      if($this->p->getCurrentWindow() === $this->wellMenu) $this->p->removeCurrentWindow();
+      $this->p->sendMessage("§f§lSoulWell§r§f: §7§oSoulWell roll was cancelled, your Soul Keys have been returned§r§f!");
+     }
+     $this->pl->getLogger()->warning("SoulWell roll cancelled for ".$name.", refunded ".($this->rolls * 10)." Soul Keys");
     }
 
 }

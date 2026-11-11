@@ -29,6 +29,7 @@ final class InvMenuEventHandler implements Listener{
 			$player = $event->getOrigin()->getPlayer();
 			if($player !== null){
 				$this->player_manager->getNullable($player)?->network->notify($packet->timestamp);
+				$event->cancel();
 			}
 		}
 	}
