@@ -14,7 +14,7 @@ use pocketmine\item\enchantment\StringToEnchantmentParser;
 use pocketmine\item\enchantment\EnchantmentInstance;
 
 use ZulfahmiFjr\SoulWell\Main;
-use muqsit\invmenu\InvMenu;
+use ZulfahmiFjr\SoulWell\libs\muqsit\invmenu\InvMenu;
 use ZulfahmiFjr\SoulWell\manager\NoteBlockSound;
 
 class RollUpdater extends Task{
