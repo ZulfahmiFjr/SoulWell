@@ -2,7 +2,7 @@
 
 <p align="center">
   <b>Lucky Draw Plugin inspired by Hypixel's Soul Well</b><br>
-  <i>Latest Version: <b>v1.6.5</b> | Supports PMMP API 5.0.0+</i>
+  <i>Development Version: <b>v1.7.0</b> | Supports PMMP API 5.27.0+</i>
 </p>
 
 <table> <tr> <td><img src="https://1.bp.blogspot.com/-olWvczoyzGc/XvgRyuHRH9I/AAAAAAAAAC8/yVPSF1naxAAWVzvuxGslbDrKUceYKiqGgCK4BGAsYHg/s1920/Screenshot_2020-06-28-10-35-27-306_com.mojang.png" width="600"/></td> <td><img src="https://1.bp.blogspot.com/-QkEkQaUq5cY/XvgRyak50TI/AAAAAAAAAC4/x-64flc0ptkAwM-fPSd-tGJbyNMcX1FWwCK4BGAsYHg/s1920/Screenshot_2020-06-28-10-35-35-368_com.mojang.png" width="600"/></td> <td><img src="https://i.imgur.com/olhFvPl.png" width="600"/></td> </tr> </table>
@@ -28,11 +28,17 @@ Compatible with **PocketMine-MP API 5.0.0 - 5.27.0+**
 - **Soul Keys Currency**: Configurable per-player key balance stored securely.
 - **Customizable Loot Table**: Add custom items, amounts, custom names, lore, and enchantments in `config.yml`.
 - **ScoreHud Integration**: Built-in `{soulwell.soulkey}` score tag to show player key counts on scoreboards.
-- **Custom Large Chest UI Resource Pack**: Classic large chest UI for Pocket and Windows 10 editions (`classic-chest-rp: true`).
+- **Nautic SoulWell JSON UI**: Navy panels, cyan button states, gold reward markers, and a compact confirmation menu with all three roll choices visible without scrolling (`classic-chest-rp: true`).
+- **SoulWell-Only Inventory Design**: Dedicated vertical 1x, 3x, and 5x reward reels use actual container items and stack counts. Regular chests and unrelated forms keep their existing layouts.
+- **Resource Pack Compatibility**: The pack is rebuilt automatically on startup, preserving the existing form dispatcher and shared UI definitions from other server packs.
+
+The `dev` branch contains the v1.7.0 UI update. The published download above remains v1.6.5 until a new release is published. After a UI pack update, reconnect to the server to load the new pack. See [UI integration notes](docs/SOULWELL-UI.md) for build instructions and validation limits.
 
 ---
 
 ## 📸 In-Game Screenshots
+
+These screenshots show the previous v1.6.5 interface and are retained as a record of the working roll system.
 
 <table align="center">
   <tr>

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /* SoulWell Plugin Made By ZulfahmiFjr 2020 */
 
 namespace ZulfahmiFjr\SoulWell;
@@ -7,9 +9,6 @@ namespace ZulfahmiFjr\SoulWell;
 use pocketmine\plugin\PluginBase;
 use pocketmine\event\Listener;
 use pocketmine\utils\Config;
-use pocketmine\resourcepacks\ZippedResourcePack;
-use pocketmine\utils\Filesystem;
-use Symfony\Component\Filesystem\Path;
 use pocketmine\event\player\PlayerJoinEvent;
 use pocketmine\player\Player;
 use pocketmine\math\Vector3;
@@ -31,6 +30,8 @@ use pocketmine\scheduler\ClosureTask;
 use ZulfahmiFjr\SoulWell\libs\muqsit\invmenu\InvMenuHandler;
 use ZulfahmiFjr\SoulWell\event\SoulKeyProvider;
 use ZulfahmiFjr\SoulWell\task\RollUpdater;
+use ZulfahmiFjr\SoulWell\manager\ConfirmMenu;
+use ZulfahmiFjr\SoulWell\service\ResourcePackService;
 
 class Main extends PluginBase implements Listener{
 
@@ -40,24 +41,10 @@ class Main extends PluginBase implements Listener{
     public $set = array();
     public array $rolls = [];
     private array $forms = [];
+    private ?ResourcePackService $resourcePack = null;
 
-    private function loadPack(){
-        $manager = $this->getServer()->getResourcePackManager();
-        $pack = new ZippedResourcePack($this->getDataFolder()."resource.zip");
-        $reflection = new \ReflectionClass($manager);
-        $property = $reflection->getProperty("resourcePacks");
-        $property->setAccessible(true);
-        $currentResourcePacks = $property->getValue($manager);
-        $currentResourcePacks[] = $pack;
-        $property->setValue($manager, $currentResourcePacks);
-        $property = $reflection->getProperty("uuidList");
-        $property->setAccessible(true);
-        $currentUUIDPacks = $property->getValue($manager);
-        $currentUUIDPacks[strtolower($pack->getPackId())] = $pack;
-        $property->setValue($manager, $currentUUIDPacks);
-        $property = $reflection->getProperty("serverForceResources");
-        $property->setAccessible(true);
-        $property->setValue($manager, true);
+    public function hasCustomUi():bool{
+     return $this->resourcePack !== null;
     }
 
     public function onEnable():void{
@@ -74,44 +61,17 @@ class Main extends PluginBase implements Listener{
      if($this->getServer()->getPluginManager()->getPlugin("ScoreHud") !== null) $this->getServer()->getPluginManager()->registerEvents(new SoulKeyProvider($this), $this);
      $this->coords = new Config($this->getDataFolder().'coords.yml', Config::YAML);
      if($this->getConfig()->get("classic-chest-rp")){
-      $zip = new \ZipArchive();
-      $zip->open(Path::join($this->getDataFolder(), "resource.zip"), \ZipArchive::CREATE | \ZipArchive::OVERWRITE);
-      foreach($this->getResources() as $resource){
-       if($resource->isFile() && str_contains($resource->getPathname(), 'ClassicLargeChest')){
-        $relativePath = Path::normalize(preg_replace("/.*[\/\\\\]ClassicLargeChest[\/\\\\].*/U", '', $resource->getPathname()));
-        $this->saveResource(Path::join('ClassicLargeChest', $relativePath), true);
-        $zip->addFile(Path::join($this->getDataFolder(), 'ClassicLargeChest', $relativePath), $relativePath);
-       }
-      }
-      $zip->close();
-      Filesystem::recursiveUnlink(Path::join($this->getDataFolder().'ClassicLargeChest'));
-      $this->loadPack();
+      $pack = new ResourcePackService($this);
+      $pack->load();
+      $this->resourcePack = $pack;
      }
     }
 
     public function onDisable():void{
      foreach($this->rolls as $roll) $roll->abort();
      $this->souls->save();
-     if($this->getConfig()->get("classic-chest-rp")){
-      $manager = $this->getServer()->getResourcePackManager();
-      $resourcePack = new ZippedResourcePack($this->getDataFolder()."resource.zip");
-      $reflection = new \ReflectionClass($manager);
-      $property = $reflection->getProperty("resourcePacks");
-      $property->setAccessible(true);
-      $currentResourcePacks = $property->getValue($manager);
-      $key = array_search($resourcePack, $currentResourcePacks, true);
-      if($key !== false){
-       unset($currentResourcePacks[$key]);
-       $property->setValue($manager, $currentResourcePacks);
-      }
-      $property = $reflection->getProperty("uuidList");
-      $property->setAccessible(true);
-      $currentUUIDPacks = $property->getValue($manager);
-      if(isset($currentResourcePacks[strtolower($resourcePack->getPackId())])) {
-       unset($currentUUIDPacks[strtolower($resourcePack->getPackId())]);
-       $property->setValue($manager, $currentUUIDPacks);
-      }
-     }
+     $this->resourcePack?->unload();
+     $this->resourcePack = null;
     }
 
     public function onPlayerJoin(PlayerJoinEvent $e){
@@ -148,20 +108,8 @@ class Main extends PluginBase implements Listener{
       if($b->getPosition()->x === $x && $b->getPosition()->y === $y + 2 && $b->getPosition()->z === $z || $b->getPosition()->x === $x && $b->getPosition()->y === $y + 1 && $b->getPosition()->z === $z){
        $pk = new ModalFormRequestPacket();
        $pk->formId = 7382999;
-       $message = "§f       _________________________\n           §6§lSoul Well by Hypixel\n§r§f       -------------------------\n";
-       $messageData = $this->getConfig()->get("message");
-       if(!empty($messageData)){
-        if(is_array($messageData)){
-         foreach($messageData as $text){
-          $text = str_replace(["{KEY}", "{PLAYER}"], [$this->souls->get(strtolower($p->getName())), $p->getName()], $text);
-          $message .= "{$text}§r\n\n";
-         }
-        }else if(is_string($messageData)){
-         $text = str_replace(["{KEY}", "{PLAYER}"], [$this->souls->get(strtolower($p->getName())), $p->getName()], $messageData);
-         $message .= "{$text}§r\n\n";
-        }
-       }
-       $encode = ["type" => "form", "title" => "§e§lSoul Well Confirm", "content" => "{$message}", "buttons" => [["text" => "§l1x Roll §r§6(10 Soul Keys)"], ["text" => "§l3x Roll §r§6(30 Soul Keys)"], ["text" => "§l5x Roll §r§6(50 Soul Keys)"], ["text" => "§lCancel Opening"]]];
+       if(isset($this->rolls[strtolower($p->getName())])){$e->cancel();return;}
+       $encode = ConfirmMenu::create($this, $p);
        $data = json_encode($encode);
        $pk->formData = $data;
        $this->forms[strtolower($p->getName())] = true;

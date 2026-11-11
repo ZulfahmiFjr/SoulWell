@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace ZulfahmiFjr\SoulWell\task;
 
 use pocketmine\scheduler\Task;
@@ -135,21 +137,23 @@ class RollUpdater extends Task{
        $this->stepCooldown--;
        return;
       }
-      $i = 0;
-      $colors = DyeColor::getAll();
-      $itemEndRod = VanillaBlocks::END_ROD()->asItem();
-      while($i < 54){
-       $col = $i % 9;
-       $row = intdiv($i, 9);
-       if(!in_array($col, $this->columns, true)){
-        if($row === 3 && $col >= min($this->columns) - 1 && $col <= max($this->columns) + 1){
-         $wellInventory->setItem($i, $itemEndRod);
-        }else{
-         $randomColor = $colors[array_rand($colors)];
-         $wellInventory->setItem($i, VanillaBlocks::STAINED_GLASS_PANE()->setColor($randomColor)->asItem());
+      if(!$this->pl->hasCustomUi()){
+       $i = 0;
+       $colors = DyeColor::getAll();
+       $itemEndRod = VanillaBlocks::END_ROD()->asItem();
+       while($i < 54){
+        $col = $i % 9;
+        $row = intdiv($i, 9);
+        if(!in_array($col, $this->columns, true)){
+         if($row === 3 && $col >= min($this->columns) - 1 && $col <= max($this->columns) + 1){
+          $wellInventory->setItem($i, $itemEndRod);
+         }else{
+          $randomColor = $colors[array_rand($colors)];
+          $wellInventory->setItem($i, VanillaBlocks::STAINED_GLASS_PANE()->setColor($randomColor)->asItem());
+         }
         }
+        $i++;
        }
-       $i++;
       }
       $note = $this->stepIndex >= count(self::DELAYS) - 5 ? match(count(self::DELAYS) - 1 - $this->stepIndex){ 0 => 24, 1 => 20, 2 => 18, 3 => 16, default => 14 } : match($this->stepIndex % 4){ 0 => 5, 1 => 2, 2 => 9, default => 12 };
       $p->getWorld()->addSound($p->getPosition(), new NoteBlockSound($note), [$p]);
