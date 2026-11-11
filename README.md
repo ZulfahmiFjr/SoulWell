@@ -2,7 +2,7 @@
 
 <p align="center">
   <b>Lucky Draw Plugin inspired by Hypixel's Soul Well</b><br>
-  <i>Development Version: <b>v1.7.5</b> | Supports PMMP API 5.27.0+</i>
+  <i>Development Version: <b>v1.8.0</b> | Supports PMMP API 5.27.0+</i>
 </p>
 
 
@@ -26,12 +26,16 @@ Compatible with **PocketMine-MP API 5.0.0 - 5.27.0+**
 - **Unified Command System**: Simplified `/sw` hub command (`/sw create`, `/sw key`, `/sw info`).
 - **Soul Keys Currency**: Configurable per-player key balance stored securely.
 - **Customizable Loot Table**: Add custom items, amounts, custom names, lore, and enchantments in `config.yml`.
+- **Reward Rarities**: Common, Rare, Epic, and Legendary rewards have configurable tier percentages and relative item weights. Rarity colors appear in item lore and reward messages.
+- **Rare Win Celebrations**: Epic and Legendary wins are announced server-wide. The winner receives a colored title, Totem of Undying sound, and level-up chime. Multi-roll sessions show one title and celebration sound for the highest rarity won.
+- **Expanded Nautic Loot**: 21 default rewards, including 13 new entries with custom enchanted swords, axes, bows, pickaxes, and armor.
+- **Safe Config Upgrade**: Existing reward fields and server settings are preserved, new rewards are appended once, and the previous configuration is backed up before migration.
 - **ScoreHud Integration**: Built-in `{soulwell.soulkey}` score tag to show player key counts on scoreboards.
 - **Nautic SoulWell JSON UI**: Navy panels, cyan button states, gold reward markers, and a compact confirmation menu with all three roll choices visible without scrolling (`classic-chest-rp: true`).
 - **SoulWell-Only Inventory Design**: Dedicated vertical 1x, 3x, and 5x reward reels use actual container items and stack counts. Regular chests and unrelated forms keep their existing layouts.
 - **Resource Pack Compatibility**: The pack is rebuilt automatically on startup, preserving the existing form dispatcher and shared UI definitions from other server packs.
 
-The `dev` branch contains the v1.7.5 UI update, including login pack priority, marker-based container routing, and additional padding for the Soul Keys icon. Both classic and data-driven container screens recognize SoulWell roll menus. The published download above remains v1.6.5 until a new release is published. After a UI pack update, reconnect to the server to load the new pack.
+The `dev` branch contains v1.8.0, adding weighted reward rarities and win celebrations to the v1.7.5 UI. The interface retains login pack priority, marker-based container routing, and padding for the Soul Keys icon. Both classic and data-driven container screens recognize SoulWell roll menus. The published download above remains v1.6.5 until a new release is published. After a UI pack update, reconnect to the server to load the new pack.
 
 ---
 
@@ -85,6 +89,70 @@ Check out SoulWell in action on YouTube:
    - **5x Roll** (50 Soul Keys)
 4. Watch the animated roulette spin down smoothly and claim your random loot!
 5. Admins can give Soul Keys to players anytime using `/sw key [player-name] [count]`.
+
+---
+
+## Reward Rarities & Configuration
+
+Edit `plugin_data/SoulWell/config.yml` and restart the server to apply loot changes. Each reel independently selects a rarity first, then an item within that rarity. The default tier chances are:
+
+| Rarity | Color | Drop Chance | Default Items | Celebration |
+| :--- | :--- | ---: | ---: | :--- |
+| Common | White | 60% | 6 | Personal reward message and level-up chime |
+| Rare | Cyan | 25% | 6 | Personal reward message and level-up chime |
+| Epic | Purple | 12% | 5 | Server broadcast, Epic title, Totem sound, and level-up chime |
+| Legendary | Gold | 3% | 4 | Server broadcast, Legendary title, Totem sound, and level-up chime |
+
+```yaml
+rarities:
+    common: 60
+    rare: 25
+    epic: 12
+    legendary: 3
+celebration:
+    broadcast: true
+    title: true
+    sound: true
+    message: "§f§lSoulWell§r§f: §r§f{PLAYER} §7§ojust found §r{COLOR}[{RARITY} {ITEM}§r{COLOR}] §7§oin SoulWell§r§f!"
+```
+
+Tier percentages must total exactly **100**, with up to two decimal places. A tier set to `0` is disabled. Every tier with a positive chance must contain at least one valid reward. Invalid loot configuration disables rolling before any Soul Keys are charged and prints an explanation in the console.
+
+Each reward accepts `rarity` and `weight`. A weight of `2` makes that item twice as likely as an item with weight `1` in the same tier. An item's final chance is **tier chance × item weight ÷ total weight in that tier**. For example, the four default Legendary items each have a **0.75%** chance per reel. Adding more items to a tier does not increase that tier's overall drop rate.
+
+Example Legendary entry within the existing `items` list:
+
+```yaml
+   - key: nautilus_fang
+     name: "§6§lNautilus Fang§r"
+     id: "netherite_sword"
+     amount: 1
+     rarity: legendary
+     weight: 1
+     lore: "§7The legendary blade of Nautic Craft"
+     enchantments:
+       sharpness:
+        level: 5
+       fire_aspect:
+        level: 2
+       unbreaking:
+        level: 3
+```
+
+New loot includes Reef Blade, Reef Miner, Sea Hunter, Tidebreaker, Coral Cleaver, Ocean Guard, Deepsea Drill, Nautilus Fang, Abyssal Reaver, Poseidon Drill, and Leviathan Guard, plus bread and arrows. Custom equipment uses vanilla item types, custom names, lore, and enchantments supported by Altay.
+
+Only Epic and Legendary rewards trigger broadcasts. The message supports `{PLAYER}`, `{ITEM}`, `{RARITY}`, `{COLOR}`, and `{AMOUNT}`. A 3x or 5x roll announces each Epic/Legendary reward separately, while the winner sees one title for the highest rarity. Celebration audio is sent only to the winner. Broadcasts, titles, and sounds can each be disabled independently.
+
+On the first upgrade to configuration version `2`, SoulWell saves an exact `config.yml.before-rarity-*` backup, assigns tiers to existing rewards, and appends the 13 new entries without changing existing item properties. Unknown legacy item types default to Common. Subsequent restarts keep the edited loot list as configured. Closing a started roll settles its preselected rewards once; disconnecting or shutting down an unsettled roll refunds its keys.
+
+The reward checks run against the installed Altay item, enchantment, sound, and inventory classes without launching another server or touching live player data:
+
+```sh
+php tools/check-rewards.php /path/to/altay/vendor/autoload.php
+python3 tools/check-ui.py
+```
+
+The PHP check includes `tools/check-rolls.php` to verify rarity boundaries, item weights, configuration migration, 1x/3x/5x outcomes, interrupted-roll refunds, and celebration behavior.
 
 ---
 

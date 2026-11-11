@@ -1,28 +1,208 @@
 ---
+config-version: 2
 message:
    - "§l§9»» §r§7§oHi§r§f {PLAYER}! §r§7§oif you want to open SoulWell§r§f, §7§oyou must have at least 10 Soul Keys to unlock 1 SoulWell§r§f!"
    - "§l§9»» §r§7§oYour Soul Keys now§r§f: {KEY}!"
 classic-chest-rp: true
+# total peluang rarity wajib 100, bisa pakai dua angka desimal
+rarities:
+    common: 60
+    rare: 25
+    epic: 12
+    legendary: 3
+# broadcast cuma hadiah epic sama legendary, efek layar dan suara cuma buat pemenang
+celebration:
+    broadcast: true
+    title: true
+    sound: true
+    message: "§f§lSoulWell§r§f: §r§f{PLAYER} §7§ojust found §r{COLOR}[{RARITY} {ITEM}§r{COLOR}] §7§oin SoulWell§r§f!"
+# weight ngatur peluang item dlam rarity yg sama, weight 2 dua kali peluang weight 1
 items:
    - name: "§a§lG Sword§r"
      id: "diamond_sword"
      amount: 1
+     rarity: epic
+     weight: 1
+     lore: "§7A trusted blade from the original SoulWell"
+     enchantments:
+       sharpness:
+        level: 3
+       unbreaking:
+        level: 2
+   - id: "cooked_chicken"
+     amount: 16
+     rarity: common
+     weight: 1
+   - id: "iron_ingot"
+     amount: 10
+     rarity: common
+     weight: 1
+   - id: "gold_ingot"
+     amount: 10
+     rarity: common
+     weight: 1
+   - id: "oak_log"
+     amount: 64
+     rarity: common
+     weight: 1
+   - id: "diamond"
+     amount: 16
+     rarity: rare
+     weight: 1
+   - id: "emerald"
+     amount: 16
+     rarity: rare
+     weight: 1
+   - id: "golden_apple"
+     amount: 16
+     rarity: rare
+     weight: 1
+   - key: sailor_supplies
+     id: "bread"
+     amount: 32
+     rarity: common
+     weight: 1
+   - key: archer_supplies
+     id: "arrow"
+     amount: 32
+     rarity: common
+     weight: 1
+   - key: reef_blade
+     name: "§b§lReef Blade§r"
+     id: "iron_sword"
+     amount: 1
+     rarity: rare
+     weight: 1
+     lore: "§7Forged for the guardians of the reef"
+     enchantments:
+       sharpness:
+        level: 2
+       unbreaking:
+        level: 2
+   - key: reef_miner
+     name: "§b§lReef Miner§r"
+     id: "iron_pickaxe"
+     amount: 1
+     rarity: rare
+     weight: 1
+     lore: "§7A reliable tool for a new voyage"
+     enchantments:
+       efficiency:
+        level: 3
+       unbreaking:
+        level: 2
+   - key: sea_hunter
+     name: "§b§lSea Hunter§r"
+     id: "bow"
+     amount: 1
+     rarity: rare
+     weight: 1
+     lore: "§7Keep the horizon in your sights"
+     enchantments:
+       power:
+        level: 3
+       unbreaking:
+        level: 2
+   - key: tidebreaker
+     name: "§d§lTidebreaker§r"
+     id: "diamond_sword"
+     amount: 1
+     rarity: epic
+     weight: 1
+     lore: "§7A blade that cuts through the rising tide"
+     enchantments:
+       sharpness:
+        level: 4
+       fire_aspect:
+        level: 1
+       unbreaking:
+        level: 3
+   - key: coral_cleaver
+     name: "§d§lCoral Cleaver§r"
+     id: "diamond_axe"
+     amount: 1
+     rarity: epic
+     weight: 1
+     lore: "§7Carved from the heart of a forgotten reef"
+     enchantments:
+       sharpness:
+        level: 4
+       unbreaking:
+        level: 3
+   - key: ocean_guard
+     name: "§d§lOcean Guard§r"
+     id: "diamond_chestplate"
+     amount: 1
+     rarity: epic
+     weight: 1
+     lore: "§7Stand firm against the deepest currents"
      enchantments:
        protection:
         level: 3
-     lore: "OP Sword\nFire Blade"
-   - id: "cooked_chicken"
-     amount: 16
-   - id: "iron_ingot"
-     amount: 10
-   - id: "gold_ingot"
-     amount: 10
-   - id: "oak_log"
-     amount: 64
-   - id: "diamond"
-     amount: 16
-   - id: "emerald"
-     amount: 16
-   - id: "golden_apple"
-     amount: 16
+       unbreaking:
+        level: 3
+   - key: deepsea_drill
+     name: "§d§lDeepsea Drill§r"
+     id: "diamond_pickaxe"
+     amount: 1
+     rarity: epic
+     weight: 1
+     lore: "§7Uncover treasures beneath the ocean floor"
+     enchantments:
+       efficiency:
+        level: 4
+       unbreaking:
+        level: 3
+   - key: nautilus_fang
+     name: "§6§lNautilus Fang§r"
+     id: "netherite_sword"
+     amount: 1
+     rarity: legendary
+     weight: 1
+     lore: "§7The legendary blade of Nautic Craft\n§6Forged in the fire beneath the abyss"
+     enchantments:
+       sharpness:
+        level: 5
+       fire_aspect:
+        level: 2
+       unbreaking:
+        level: 3
+   - key: abyssal_reaver
+     name: "§6§lAbyssal Reaver§r"
+     id: "netherite_axe"
+     amount: 1
+     rarity: legendary
+     weight: 1
+     lore: "§7A relic carried by the first ocean guardian"
+     enchantments:
+       sharpness:
+        level: 5
+       unbreaking:
+        level: 3
+   - key: poseidon_drill
+     name: "§6§lPoseidon Drill§r"
+     id: "netherite_pickaxe"
+     amount: 1
+     rarity: legendary
+     weight: 1
+     lore: "§7The deepest vaults hold no secrets from it"
+     enchantments:
+       efficiency:
+        level: 5
+       fortune:
+        level: 3
+       unbreaking:
+        level: 3
+   - key: leviathan_guard
+     name: "§6§lLeviathan Guard§r"
+     id: "netherite_chestplate"
+     amount: 1
+     rarity: legendary
+     weight: 1
+     lore: "§7Armor worthy of the ruler of the abyss"
+     enchantments:
+       protection:
+        level: 4
+       unbreaking:
+        level: 3
 ...

@@ -6,14 +6,8 @@ namespace ZulfahmiFjr\SoulWell\task;
 
 use pocketmine\scheduler\Task;
 use pocketmine\player\Player;
-use pocketmine\world\Position;
-use pocketmine\item\Item;
 use pocketmine\block\VanillaBlocks;
 use pocketmine\block\utils\DyeColor;
-use pocketmine\item\StringToItemParser;
-use pocketmine\item\enchantment\StringToEnchantmentParser;
-use pocketmine\item\enchantment\EnchantmentInstance;
-use pocketmine\world\sound\XpLevelUpSound;
 
 use ZulfahmiFjr\SoulWell\Main;
 use ZulfahmiFjr\SoulWell\libs\muqsit\invmenu\InvMenu;
@@ -62,47 +56,18 @@ class RollUpdater extends Task{
       $this->abort();
       return;
      }
-     $this->settled = true;
-     foreach($this->columns as $c){
-      $item = $this->predictions[$c] ?? $this->getReward();
-      if($item !== null && !$item->isNull() && $p->isOnline()){
-       $this->addItemToPlayer($p, $item);
-       $p->sendMessage("§f§lSoulWell§r§f: §7§oYou get §r§f".$item->getName()." §7§owith amount §r§f".$item->getCount()." §7§ofrom SoulWell§r§f.");
-      }
-     }
-     $this->finish();
+     $this->settle($p);
     }
 
-    public function getReward():?Item{
-     $p = $this->p;
-     $items = $this->pl->wellItems;
-     if(!is_array($items) || $items === []) return null;
-     $reward = array_rand($items, 1);
-     $reward = $items[$reward];
-     if(!isset($reward["id"]) || !isset($reward["amount"])){
-      return null;
+    private function settle(Player $p):void{
+     if($this->settled) return;
+     if(!$p->isOnline() || count($this->predictions) !== $this->rolls){$this->abort();return;}
+     $this->settled = true;
+     try{
+      $this->pl->rewardService->give($p, $this->predictions);
+     }finally{
+      $this->finish();
      }
-     $idString = $reward["id"];
-     $item = StringToItemParser::getInstance()->parse($idString);
-     if($item === null || (int) $reward["amount"] <= 0) return null;
-     if(isset($reward["amount"])){
-      $item->setCount($reward["amount"]);
-     }
-     if(isset($reward["name"])){
-      $item->setCustomName($reward["name"]);
-     }
-     if(isset($reward["lore"])){
-      $item->setLore([$reward["lore"]]);
-     }
-     if(isset($reward["enchantments"])){
-      foreach($reward["enchantments"] as $enchantName => $enchantData){
-       $level = $enchantData["level"];
-       if(!is_null($enchant = StringToEnchantmentParser::getInstance()->parse($enchantName))){
-        $item->addEnchantment(new EnchantmentInstance($enchant, $level));
-       }
-      }
-     }
-     return $item;
     }
 
     public function onRun():void{
@@ -127,6 +92,7 @@ class RollUpdater extends Task{
       if($this->p->getCurrentWindow() !== $this->wellMenu){$this->abort();return;}
       $this->ready++;
       if($this->ready < 10) return;
+      foreach($this->columns as $c) $this->predictions[$c] = $this->pl->rewards->draw();
       $this->started = true;
       $this->pl->getLogger()->info("SoulWell rolling ".$this->rolls." column(s) for ".$this->p->getName());
      }
@@ -158,17 +124,14 @@ class RollUpdater extends Task{
       $note = $this->stepIndex >= count(self::DELAYS) - 5 ? match(count(self::DELAYS) - 1 - $this->stepIndex){ 0 => 24, 1 => 20, 2 => 18, 3 => 16, default => 14 } : match($this->stepIndex % 4){ 0 => 5, 1 => 2, 2 => 9, default => 12 };
       $p->getWorld()->addSound($p->getPosition(), new NoteBlockSound($note), [$p]);
       foreach($this->columns as $c){
-       $item = $this->getReward();
-       if($item === null){$this->abort();return;}
+       $reward = $this->stepIndex === count(self::DELAYS) - 4 ? $this->predictions[$c] : $this->pl->rewards->draw();
+       $item = $reward->getItem();
        $wellInventory->setItem($c + 45, $wellInventory->getItem($c + 36));
        $wellInventory->setItem($c + 36, $wellInventory->getItem($c + 27));
        $wellInventory->setItem($c + 27, $wellInventory->getItem($c + 18));
        $wellInventory->setItem($c + 18, $wellInventory->getItem($c + 9));
        $wellInventory->setItem($c + 9, $wellInventory->getItem($c));
        $wellInventory->setItem($c, $item);
-       if($this->stepIndex === count(self::DELAYS) - 4){
-        $this->predictions[$c] = $item;
-       }
       }
       $this->stepCooldown = self::DELAYS[$this->stepIndex] - 1;
       $this->stepIndex++;
@@ -187,21 +150,8 @@ class RollUpdater extends Task{
       $this->finishCooldown--;
       return;
      }
-     $this->settled = true;
-     foreach($this->columns as $c){
-      $item = $wellInventory->getItem($c + 27);
-      if(!$item->isNull()){
-       $this->addItemToPlayer($p, $item);
-       $p->sendMessage("§f§lSoulWell§r§f: §7§oYou get §r§f".$item->getName()." §7§owith amount §r§f".$item->getCount()." §7§ofrom SoulWell§r§f.");
-      }
-     }
-     $p->getWorld()->addSound($p->getPosition(), new XpLevelUpSound(30), [$p]);
-     $this->finish();
+     $this->settle($p);
      $p->removeCurrentWindow();
-    }
-
-    private function addItemToPlayer(Player $p, Item $item):void{
-     foreach($p->getInventory()->addItem($item) as $leftover) $p->getWorld()->dropItem($p->getPosition(), $leftover);
     }
 
     private function finish():void{

@@ -32,11 +32,15 @@ use ZulfahmiFjr\SoulWell\libs\muqsit\invmenu\InvMenuHandler;
 use ZulfahmiFjr\SoulWell\event\SoulKeyProvider;
 use ZulfahmiFjr\SoulWell\task\RollUpdater;
 use ZulfahmiFjr\SoulWell\manager\ConfirmMenu;
+use ZulfahmiFjr\SoulWell\manager\RewardManager;
+use ZulfahmiFjr\SoulWell\service\RewardConfig;
+use ZulfahmiFjr\SoulWell\service\RewardService;
 use ZulfahmiFjr\SoulWell\service\ResourcePackService;
 
 class Main extends PluginBase implements Listener{
 
-    public $wellItems;
+    public ?RewardManager $rewards = null;
+    public ?RewardService $rewardService = null;
     public $souls;
     public $coords;
     public $set = array();
@@ -57,10 +61,21 @@ class Main extends PluginBase implements Listener{
       if($e->getPacketId() === \pocketmine\network\mcpe\protocol\NetworkStackLatencyPacket::NETWORK_ID) $e->uncancel();
      }, EventPriority::NORMAL, $this, true);
      $this->saveResource("config.yml");
-     $this->wellItems = $this->getConfig()->get("items");
      $this->souls = new Config($this->getDataFolder().'souls.yml', Config::YAML);
      if($this->getServer()->getPluginManager()->getPlugin("ScoreHud") !== null) $this->getServer()->getPluginManager()->registerEvents(new SoulKeyProvider($this), $this);
      $this->coords = new Config($this->getDataFolder().'coords.yml', Config::YAML);
+     try{
+      $text = file_get_contents($this->getResourcePath("config.yml"));
+      if($text === false) throw new \RuntimeException("Unable to open bundled SoulWell defaults");
+      $defaults = yaml_parse($text);
+      if(!is_array($defaults)) throw new \RuntimeException("Unable to read bundled SoulWell defaults");
+      if(RewardConfig::upgrade($this->getConfig(), $defaults)) $this->getLogger()->info("SoulWell rarity config upgraded, original rewards preserved and config backup saved");
+      $this->rewards = new RewardManager($this->getConfig()->getAll());
+      $this->rewardService = new RewardService($this);
+      $this->getLogger()->info("SoulWell loaded ".$this->rewards->getCount()." rewards, ".$this->rewards->getSummary());
+     }catch(\Throwable $e){
+      $this->getLogger()->error("SoulWell rolls disabled, fix config and restart: ".$e->getMessage());
+     }
      if($this->getConfig()->get("classic-chest-rp")){
       $pack = new ResourcePackService($this);
       $pack->load();
@@ -179,6 +194,10 @@ class Main extends PluginBase implements Listener{
       if($id === 7382999 && isset($data) && is_int($data)){
        $rolls = match($data){ 0 => 1, 1 => 3, 2 => 5, default => 0 };
        if($rolls > 0){
+        if($this->rewards === null || $this->rewardService === null){
+         $p->sendMessage("§f§lSoulWell§r§f: §7§oSoulWell rewards are temporarily unavailable, please report admin§r§f!");
+         return;
+        }
         $cost = $rolls * 10;
         if((int) $this->souls->get(strtolower($p->getName()), 0) < $cost){
          $p->sendMessage("§f§lSoulWell§r§f: §7§oYour Soul Keys amount is still lacking to open SoulWell§r§f!");
