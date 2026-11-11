@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace ZulfahmiFjr\SoulWell\service;
 
 use pocketmine\resourcepacks\ZippedResourcePack;
+use pocketmine\event\player\PlayerResourcePackOfferEvent;
 use ZulfahmiFjr\SoulWell\Main;
 
 final class ResourcePackService{
@@ -20,6 +21,7 @@ final class ResourcePackService{
      $stack = $manager->getResourceStack();
      $defs = [];
      $main = null;
+     $serverForm = ["namespace" => "server_form"];
      $fallback = "@server_form.long_form";
      foreach($stack as $pack){
       if(!$pack instanceof ZippedResourcePack) continue;
@@ -34,7 +36,10 @@ final class ResourcePackService{
        $text = $zip->getFromName("ui/server_form.json");
        if($main === null && $text !== false){
         $data = json_decode($text, true, 512, JSON_THROW_ON_ERROR);
-        if(isset($data["main_screen_content"]["controls"])) $main = $data["main_screen_content"];
+        if(isset($data["main_screen_content"]["controls"])){
+         $main = $data["main_screen_content"];
+         $serverForm = $data;
+        }
        }
       }finally{
        $zip->close();
@@ -68,9 +73,10 @@ final class ResourcePackService{
      if(!isset($files["manifest.json"], $files["ui/soulwell_ui.json"])) throw new \RuntimeException("SoulWell UI assets are missing");
      $ui = json_decode($files["ui/soulwell_ui.json"], true, 512, JSON_THROW_ON_ERROR);
      $ui["form_dispatch"]["controls"][0] = ["original".$fallback => $ui["form_dispatch"]["controls"][0]["original@server_form.long_form"]];
-     $flags = JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_THROW_ON_ERROR;
+     $flags = JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_PRESERVE_ZERO_FRACTION | JSON_THROW_ON_ERROR;
      $files["ui/soulwell_ui.json"] = json_encode($ui, $flags);
-     $files["ui/server_form.json"] = json_encode(["namespace" => "server_form", "main_screen_content" => $main], $flags);
+     $serverForm["main_screen_content"] = $main;
+     $files["ui/server_form.json"] = json_encode($serverForm, $flags);
      $files["ui/_ui_defs.json"] = json_encode(["ui_defs" => array_values(array_unique([...$defs, "ui/soulwell_ui.json"]))], $flags);
      ksort($files);
      $path = $this->pl->getDataFolder()."resource.zip";
@@ -91,6 +97,33 @@ final class ResourcePackService{
      $manager->setResourceStack([$this->pack, ...$stack]);
      $manager->setResourcePacksRequired(true);
      $this->pl->getLogger()->info("Nautic SoulWell UI ".$this->pack->getPackVersion()." ready, other forms and chest layouts preserved");
+    }
+
+    public function prioritize():void{
+     if($this->pack === null) return;
+     $manager = $this->pl->getServer()->getResourcePackManager();
+     $stack = $this->prioritized($manager->getResourceStack());
+     $manager->setResourceStack($stack);
+     $this->report($stack, "startup");
+    }
+
+    public function onOffer(PlayerResourcePackOfferEvent $e):void{
+     if($this->pack === null) return;
+     $stack = $this->prioritized($e->getResourcePacks());
+     $e->setResourcePacks($stack, $e->getEncryptionKeys());
+     $this->report($stack, "client-offer");
+    }
+
+    private function prioritized(array $stack):array{
+     if($this->pack === null) return $stack;
+     $id = strtolower($this->pack->getPackId());
+     return [$this->pack, ...array_values(array_filter($stack, fn($pack):bool => strtolower($pack->getPackId()) !== $id))];
+    }
+
+    private function report(array $stack, string $phase):void{
+     $rows = array_map(fn($pack):array => ["uuid" => $pack->getPackId(), "name" => $pack->getPackName(), "version" => $pack->getPackVersion(), "sha256" => bin2hex($pack->getSha256()), "path" => $pack instanceof ZippedResourcePack ? $pack->getPath() : null], $stack);
+     $data = ["phase" => $phase, "utc" => gmdate("c"), "soulwellFirst" => $this->pack !== null && ($stack[0] ?? null) === $this->pack, "packs" => $rows];
+     if(file_put_contents($this->pl->getDataFolder()."resource-pack-".$phase.".json", json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_THROW_ON_ERROR), LOCK_EX) === false) $this->pl->getLogger()->warning("Unable to record SoulWell resource pack order");
     }
 
     public function unload():void{

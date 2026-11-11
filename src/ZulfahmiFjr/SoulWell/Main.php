@@ -10,6 +10,7 @@ use pocketmine\plugin\PluginBase;
 use pocketmine\event\Listener;
 use pocketmine\utils\Config;
 use pocketmine\event\player\PlayerJoinEvent;
+use pocketmine\event\player\PlayerResourcePackOfferEvent;
 use pocketmine\player\Player;
 use pocketmine\math\Vector3;
 use pocketmine\world\particle\FloatingTextParticle;
@@ -64,6 +65,8 @@ class Main extends PluginBase implements Listener{
       $pack = new ResourcePackService($this);
       $pack->load();
       $this->resourcePack = $pack;
+      $this->getServer()->getPluginManager()->registerEvent(PlayerResourcePackOfferEvent::class, function(PlayerResourcePackOfferEvent $e) use ($pack):void{$pack->onOffer($e);}, EventPriority::HIGHEST, $this);
+      $this->getScheduler()->scheduleDelayedTask(new ClosureTask(function() use ($pack):void{$pack->prioritize();}), 1);
      }
     }
 
