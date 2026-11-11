@@ -134,11 +134,11 @@ def controls():
     ui["roll_panel"] = {"type": "panel", "controls": [{"container_gamepad_helpers@common.container_gamepad_helpers": {}}, {"selected_item_details_factory@common.selected_item_details_factory": {"control_name": "@chest.selected_item_details"}}, {"root@common.root_panel": {"size": [256, 168], "layer": 1, "controls": [{"frame@soulwell.frame": {}}, {"title": label("$sw_roll_title", (210, 12), (21, 7), color=[1, 0.86, 0.43], text_alignment="center")}, {"status": label("Rolling...", (238, 10), (9, 23), shadow=False, text_alignment="center")}, {"hint": label("Each highlighted slot reveals one reward", (238, 8), (9, 33), shadow=False, font_scale_factor=0.75, text_alignment="center", color=[0.72, 0.81, 0.84])}, {"reels_1@soulwell.reels_1": {}}, {"reels_3@soulwell.reels_3": {}}, {"reels_5@soulwell.reels_5": {}}, {"close@soulwell.close": {}}, {"gamepad_cursor@common.gamepad_cursor_button": {}}]}}]}
     write_json(ROOT / "ui" / "soulwell_ui.json", ui)
     contains = lambda text: "(not ((#sw_container_title - '" + text + "') = #sw_container_title))"
-    active = "(" + contains("Soul Well") + " and (" + " or ".join(contains("(" + str(count) + "x Roll)") for count in [1, 3, 5]) + "))"
     def title_binding(expression):
         return {"property_bag": {"#sw_container_title": "$container_title"}, "bindings": [{"binding_type": "view", "source_property_name": expression, "target_property_name": "#visible"}]}
     for name, fallback in [("classic_desktop", "chest.large_chest_panel"), ("classic_pocket", "pocket_containers.large_chest_panel"), ("data_desktop", "data_driven_container.desktop_panel"), ("data_pocket", "pocket_containers.data_driven_container_panel")]:
-        children = [{"original@" + fallback: title_binding("(not " + active + ")")}]
+        original = {"type": "panel", "visible": False, **title_binding("((#sw_container_title - '§l§fSoul Well (') = #sw_container_title)"), "controls": [{"inventory@" + fallback: {}}]}
+        children = [{"original": original}]
         for count in [1, 3, 5]:
             children.append({"roll_" + str(count) + "@soulwell.roll_panel": {"$sw_rolls": count, "$sw_roll_title": "§lSOUL WELL §r§6• §l" + str(count) + "x ROLL", "visible": False, **title_binding("(" + contains("Soul Well") + " and " + contains("(" + str(count) + "x Roll)") + ")")}})
         ui[name + "_dispatch"] = {"type": "panel", "controls": children}

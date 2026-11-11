@@ -23,7 +23,10 @@ def check_ui(ui):
             errors.append(str(count) + "x reel winning row is not aligned with the gold marker")
     for profile in ["classic_desktop", "classic_pocket", "data_desktop", "data_pocket"]:
         controls = ui.get(profile + "_dispatch", {}).get("controls", [])
-        routed = [value for control in controls for key, value in control.items() if key.startswith("original@") or key.startswith("roll_")]
+        routed = [value for control in controls for key, value in control.items() if key == "original" or key.startswith("roll_")]
+        original = next((control["original"] for control in controls if "original" in control), {})
+        if original.get("type") != "panel" or original.get("visible") is not False or len(original.get("controls", [])) != 1:
+            errors.append(profile + " must hide the original inventory through a dedicated wrapper")
         if len(routed) != 4:
             errors.append(profile + " must route to one original panel and three roll panels")
         for control in routed:

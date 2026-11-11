@@ -5,13 +5,13 @@
     "description": "SoulWell confirmation and vertical reward reels, navy, cyan and gold",
     "uuid": "9a24aa06-4b11-adc7-e282-84bb9d7c0e28",
     "min_engine_version": [1, 21, 0],
-    "version": [1, 7, 4]
+    "version": [1, 7, 5]
   },
   "modules": [
     {
       "type": "resources",
       "uuid": "cccfccca-5eb9-3f42-1e27-609951dfed73",
-      "version": [1, 7, 4]
+      "version": [1, 7, 5]
     }
   ]
 }
