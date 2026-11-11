@@ -46,8 +46,34 @@ def check_ui(ui):
     if buttons.get("type") != "collection_panel" or buttons.get("collection_name") != "form_buttons" or indices != [0, 1, 2, 3]:
         errors.append("confirmation must map three rolls and Prize List through the native form collection")
     routes = ui.get("form_dispatch", {}).get("controls", [])
-    if len(routes) != 10 or not any(key.startswith("original@") for key in routes[0]):
+    if len(routes) != 10 or "original" not in routes[0]:
         errors.append("form dispatcher must preserve other forms and route confirmation plus four list/detail pairs")
+    original_form = routes[0].get("original", {}) if routes else {}
+    inherited = original_form.get("controls", [])
+    if original_form.get("type") != "panel" or original_form.get("visible") is not False or len(inherited) != 1 or not any(key.startswith("content@") for key in inherited[0]):
+        errors.append("the existing form dispatcher must be inside a separate hidden wrapper, inherited children can override their own visibility")
+    if original_form.get("property_bag", {}).get("#sw_form_title") != "":
+        errors.append("the existing form wrapper must initialize its own title property")
+    bindings = original_form.get("bindings", [])
+    if not any(binding.get("binding_name") == "#title_text" and binding.get("binding_name_override") == "#sw_form_title" for binding in bindings):
+        errors.append("the form wrapper must bind the live form title to its own property")
+    close = ui.get("close@common.button", {})
+    if close.get("anchor_from") != "top_right" or close.get("anchor_to") != "top_right":
+        errors.append("the shared close button must anchor to the panel top right")
+    close_width, close_height = close.get("size", [0, 0])
+    close_x, close_y = close.get("offset", [0, 0])
+    if close_width <= 0 or close_height <= 0 or close_x > -5 or close_y < 5 or close_y + close_height > 20:
+        errors.append("close button must fit inside the shortest header with at least five pixels of top and right inset")
+    for control in close.get("controls", []):
+        for state in control.values():
+            x, y = state.get("offset", [0, 0])
+            width, height = state.get("size", [0, 0])
+            if x < 0 or y < 0 or x + width > close_width or y + height > close_height:
+                errors.append("close button artwork extends outside its click area")
+    for width, height in [(256, 196), (300, 176), (300, 166), (256, 168)]:
+        left = width - close_width + close_x
+        if left < 5 or left + close_width > width - 5 or close_y + close_height > height - 5:
+            errors.append("close button leaves the panel border at " + str((width, height)))
     for rarity in ["common", "rare", "epic", "legendary"]:
         grid = ui.get("prize_grid_" + rarity, {})
         if grid.get("type") != "collection_panel" or grid.get("collection_name") != "form_buttons":
@@ -81,4 +107,4 @@ if __name__ == "__main__":
     if errors:
         print("\n".join(errors))
         sys.exit(1)
-    print("Native collection contracts, roll slots, prize navigation, scrolling grids and isolated form routing passed")
+    print("Native collection contracts, prize navigation, separate form wrapper and inset close button bounds passed")

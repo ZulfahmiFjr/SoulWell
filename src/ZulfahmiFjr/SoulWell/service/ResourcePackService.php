@@ -74,7 +74,7 @@ final class ResourcePackService{
      if(!isset($files["manifest.json"], $files["ui/soulwell_ui.json"])) throw new \RuntimeException("SoulWell UI assets are missing");
      $ui = json_decode($files["ui/soulwell_ui.json"], true, 512, JSON_THROW_ON_ERROR);
      if($this->pl->rewards !== null) PrizeMenu::configureUi($ui, $this->pl->rewards);
-     $ui["form_dispatch"]["controls"][0] = ["original".$fallback => $ui["form_dispatch"]["controls"][0]["original@server_form.long_form"]];
+     $ui["form_dispatch"]["controls"][0]["original"]["controls"] = [["content".$fallback => []]];
      $flags = JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_PRESERVE_ZERO_FRACTION | JSON_THROW_ON_ERROR;
      $files["ui/soulwell_ui.json"] = json_encode($ui, $flags);
      $serverForm["main_screen_content"] = $main;
