@@ -35,7 +35,7 @@ class Main extends PluginBase implements Listener{
     public $souls;
     public $coords;
     public $set = array();
-    
+
     private function loadPack(){
         $manager = $this->getServer()->getResourcePackManager();
         $pack = new ZippedResourcePack($this->getDataFolder()."resource.zip");
@@ -54,7 +54,7 @@ class Main extends PluginBase implements Listener{
         $property->setAccessible(true);
         $property->setValue($manager, true);
     }
-    
+
     public function onEnable():void{
      if(!is_dir($this->getDataFolder())) @mkdir($this->getDataFolder());
      $this->getServer()->getPluginManager()->registerEvents($this, $this);
@@ -147,7 +147,7 @@ class Main extends PluginBase implements Listener{
          $message .= "{$text}§r\n\n";
         }
        }
-       $encode = ["type" => "form", "title" => "§e§lSoul Well Confirm", "content" => "{$message}", "buttons" => [["text" => "§lOpen SoulWell"], ["text" => "§lCancel Opening"]]];
+       $encode = ["type" => "form", "title" => "§e§lSoul Well Confirm", "content" => "{$message}", "buttons" => [["text" => "§l1x Roll §r§7(10 Soul Keys)"], ["text" => "§l3x Roll §r§7(30 Soul Keys)"], ["text" => "§l5x Roll §r§7(50 Soul Keys)"], ["text" => "§lCancel Opening"]]];
        $data = json_encode($encode);
        $pk->formData = $data;
        $p->getNetworkSession()->sendDataPacket($pk);
@@ -205,18 +205,18 @@ class Main extends PluginBase implements Listener{
      $p = $e->getOrigin()->getPlayer();
      if($pk instanceof ModalFormResponsePacket){
       $id = $pk->formId;
-      $data = json_decode($pk->formData ?? '[]', true);
-      if($id === 7382999){
-       if(isset($data)){
-        if($data === 0){
-         if($this->souls->get(strtolower($p->getName())) < 10){
-          $p->sendMessage("§f§lSoulWell§r§f: §7§oYour Soul Keys amount is still lacking to open SoulWell§r§f!");
-          return;
-         }
-         $this->souls->set(strtolower($p->getName()), $this->souls->get(strtolower($p->getName())) - 10);
-         $this->souls->save();
-         $this->getScheduler()->scheduleRepeatingTask(new RollUpdater($this, $p, 100), 3);
+      $data = json_decode($pk->formData ?? "[]", true);
+      if($id === 7382999 && isset($data) && is_int($data)){
+       $rolls = match($data){ 0 => 1, 1 => 3, 2 => 5, default => 0 };
+       if($rolls > 0){
+        $cost = $rolls * 10;
+        if((int) $this->souls->get(strtolower($p->getName()), 0) < $cost){
+         $p->sendMessage("§f§lSoulWell§r§f: §7§oYour Soul Keys amount is still lacking to open SoulWell§r§f!");
+         return;
         }
+        $this->souls->set(strtolower($p->getName()), (int) $this->souls->get(strtolower($p->getName()), 0) - $cost);
+        $this->souls->save();
+        $this->getScheduler()->scheduleRepeatingTask(new RollUpdater($this, $p, 100, $rolls), 3);
        }
       }
      }
