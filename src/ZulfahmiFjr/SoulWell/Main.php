@@ -24,8 +24,9 @@ use pocketmine\event\server\CommandEvent;
 use pocketmine\network\mcpe\protocol\ModalFormResponsePacket;
 use pocketmine\command\CommandSender;
 use pocketmine\command\Command;
+use pocketmine\scheduler\ClosureTask;
 
-use muqsit\invmenu\InvMenuHandler;
+use ZulfahmiFjr\SoulWell\libs\muqsit\invmenu\InvMenuHandler;
 use ZulfahmiFjr\SoulWell\event\SoulKeyProvider;
 use ZulfahmiFjr\SoulWell\task\RollUpdater;
 
@@ -147,7 +148,7 @@ class Main extends PluginBase implements Listener{
          $message .= "{$text}§r\n\n";
         }
        }
-       $encode = ["type" => "form", "title" => "§e§lSoul Well Confirm", "content" => "{$message}", "buttons" => [["text" => "§l1x Roll §r§7(10 Soul Keys)"], ["text" => "§l3x Roll §r§7(30 Soul Keys)"], ["text" => "§l5x Roll §r§7(50 Soul Keys)"], ["text" => "§lCancel Opening"]]];
+       $encode = ["type" => "form", "title" => "§e§lSoul Well Confirm", "content" => "{$message}", "buttons" => [["text" => "§l1x Roll §r§6(10 Soul Keys)"], ["text" => "§l3x Roll §r§6(30 Soul Keys)"], ["text" => "§l5x Roll §r§6(50 Soul Keys)"], ["text" => "§lCancel Opening"]]];
        $data = json_encode($encode);
        $pk->formData = $data;
        $p->getNetworkSession()->sendDataPacket($pk);
@@ -216,7 +217,11 @@ class Main extends PluginBase implements Listener{
         }
         $this->souls->set(strtolower($p->getName()), (int) $this->souls->get(strtolower($p->getName()), 0) - $cost);
         $this->souls->save();
-        $this->getScheduler()->scheduleRepeatingTask(new RollUpdater($this, $p, 100, $rolls), 3);
+        $this->getScheduler()->scheduleDelayedTask(new ClosureTask(function() use($p, $rolls):void{
+         if($p->isOnline()){
+          $this->getScheduler()->scheduleRepeatingTask(new RollUpdater($this, $p, 100, $rolls), 3);
+         }
+        }), 2);
        }
       }
      }
