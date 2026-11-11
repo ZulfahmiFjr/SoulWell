@@ -163,17 +163,17 @@ class RollUpdater extends Task{
          $i++;
         }
         if($this->note === 11 || $this->note === 12){
-         $p->getWorld()->addSound($p->getPosition(), new NoteBlockSound(5));
+         $p->getWorld()->addSound($p->getPosition(), new NoteBlockSound(5), [$p]);
          if($this->note === 11){
           $this->note = 2;
          }else if($this->note === 12){
           $this->note = 0;
          }
         }else if($this->note === 0){
-         $p->getWorld()->addSound($p->getPosition(), new NoteBlockSound(2));
+         $p->getWorld()->addSound($p->getPosition(), new NoteBlockSound(2), [$p]);
          $this->note = 11;
         }else if($this->note === 2){
-         $p->getWorld()->addSound($p->getPosition(), new NoteBlockSound(9));
+         $p->getWorld()->addSound($p->getPosition(), new NoteBlockSound(9), [$p]);
          $this->note = 12;
         }
         foreach($this->columns as $c){
@@ -213,6 +213,7 @@ class RollUpdater extends Task{
          $p->sendMessage("§f§lSoulWell§r§f: §7§oYou get §r§f".$item->getName()." §7§owith amount §r§f".$item->getCount()." §7§ofrom SoulWell§r§f.");
         }
        }
+       $p->getWorld()->addSound($p->getPosition(), new \pocketmine\world\sound\XpLevelUpSound(30), [$p]);
        $this->finish();
        $p->removeCurrentWindow();
       }

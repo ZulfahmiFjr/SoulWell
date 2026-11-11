@@ -7,11 +7,12 @@ use pocketmine\math\Vector3;
 use pocketmine\network\mcpe\protocol\BlockEventPacket;
 use pocketmine\network\mcpe\protocol\types\BlockPosition;
 use pocketmine\network\mcpe\protocol\LevelSoundEventPacket;
+use pocketmine\network\mcpe\protocol\types\LevelSoundEvent;
 
 class NoteBlockSound implements Sound{
 
     private $note;
-    
+
     public function __construct($note){
      $this->note = $note;
     }
@@ -24,10 +25,7 @@ class NoteBlockSound implements Sound{
      $pk->blockPosition = new BlockPosition($x, $y, $z);
      $pk->eventType = 0;
      $pk->eventData = $this->note;
-     $pk2 = new LevelSoundEventPacket();
-     $pk2->sound = 81;
-     $pk2->position = $vector;
-     $pk2->extraData = 0 | $this->note;
+     $pk2 = LevelSoundEventPacket::nonActorSound(LevelSoundEvent::NOTE, $vector, true, $this->note);
      return [$pk, $pk2];
     }
 
