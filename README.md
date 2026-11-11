@@ -2,7 +2,7 @@
 
 <p align="center">
   <b>Lucky Draw Plugin inspired by Hypixel's Soul Well</b><br>
-  <i>Development Version: <b>v1.8.0</b> | Supports PMMP API 5.27.0+</i>
+  <i>Development Version: <b>v1.9.0</b> | Supports PMMP API 5.27.0+</i>
 </p>
 
 
@@ -30,12 +30,13 @@ Compatible with **PocketMine-MP API 5.0.0 - 5.27.0+**
 - **Rare Win Celebrations**: Epic and Legendary wins are announced server-wide. The winner receives a colored title, Totem of Undying sound, and level-up chime. Multi-roll sessions show one title and celebration sound for the highest rarity won.
 - **Expanded Nautic Loot**: 21 default rewards, including 13 new entries with custom enchanted swords, axes, bows, pickaxes, and armor.
 - **Safe Config Upgrade**: Existing reward fields and server settings are preserved, new rewards are appended once, and the previous configuration is backed up before migration.
+- **Prize List & Details**: Browse Common, Rare, Epic, and Legendary prizes in a custom two-column JSON UI. Select an item to see its per-roll chance, quantity, type, enchantments, and lore directly from the configured loot table.
 - **ScoreHud Integration**: Built-in `{soulwell.soulkey}` score tag to show player key counts on scoreboards.
 - **Nautic SoulWell JSON UI**: Navy panels, cyan button states, gold reward markers, and a compact confirmation menu with all three roll choices visible without scrolling (`classic-chest-rp: true`).
 - **SoulWell-Only Inventory Design**: Dedicated vertical 1x, 3x, and 5x reward reels use actual container items and stack counts. Regular chests and unrelated forms keep their existing layouts.
 - **Resource Pack Compatibility**: The pack is rebuilt automatically on startup, preserving the existing form dispatcher and shared UI definitions from other server packs.
 
-The `dev` branch contains v1.8.0, adding weighted reward rarities and win celebrations to the v1.7.5 UI. The interface retains login pack priority, marker-based container routing, and padding for the Soul Keys icon. Both classic and data-driven container screens recognize SoulWell roll menus. The published download above remains v1.6.5 until a new release is published. After a UI pack update, reconnect to the server to load the new pack.
+The `dev` branch contains v1.9.0, adding a Prize List and Prize Details interface to the weighted rarities and win celebrations introduced in v1.8.0. The confirmation menu now includes a Prize List button, a bordered footer, and the navy, cyan, and gold styling used throughout the browser. The interface retains login pack priority and marker-based container routing. Both classic and data-driven container screens recognize SoulWell roll menus. The published download above remains v1.6.5 until a new release is published. Reconnect to the server after the UI pack update to download version 1.9.0.
 
 ---
 
@@ -43,7 +44,7 @@ The `dev` branch contains v1.8.0, adding weighted reward rarities and win celebr
 
 ### Nautic SoulWell JSON UI
 
-The current `dev` interface features a navy-and-cyan confirmation menu and vertical reward reels with gold selection markers. The screenshots below show the confirmation menu and all three roll modes in Minecraft Bedrock. These matching screenshots show the v1.7.5 interface verified in-game.
+The screenshots below show the v1.7.5 confirmation menu and all three roll modes verified in Minecraft Bedrock, with navy-and-cyan panels and gold selection markers. The v1.9.0 Prize List and expanded confirmation layout are described below; these existing screenshots are retained until updated client captures are available.
 
 <table align="center">
   <tr>
@@ -89,6 +90,7 @@ Check out SoulWell in action on YouTube:
    - **5x Roll** (50 Soul Keys)
 4. Watch the animated roulette spin down smoothly and claim your random loot!
 5. Admins can give Soul Keys to players anytime using `/sw key [player-name] [count]`.
+6. Select **Prize List** to browse rewards without spending keys. Switch rarity tabs, then select an item to open its details. **Back to Prize List** returns to the selected rarity, and **Back** returns to the roll menu.
 
 ---
 
@@ -119,6 +121,12 @@ celebration:
 Tier percentages must total exactly **100**, with up to two decimal places. A tier set to `0` is disabled. Every tier with a positive chance must contain at least one valid reward. Invalid loot configuration disables rolling before any Soul Keys are charged and prints an explanation in the console.
 
 Each reward accepts `rarity` and `weight`. A weight of `2` makes that item twice as likely as an item with weight `1` in the same tier. An item's final chance is **tier chance × item weight ÷ total weight in that tier**. For example, the four default Legendary items each have a **0.75%** chance per reel. Adding more items to a tier does not increase that tier's overall drop rate.
+
+The Prize List opens on the Legendary tab and displays item icons, names, quantities, and rarity badges in two columns. Longer lists scroll inside the panel while the tabs and Back button remain visible. The details panel highlights the selected item's actual chance per roll on the left and shows its item type, enchantment levels, and lore on the right. Long descriptions scroll independently. Browsing is read-only and does not debit Soul Keys or give items.
+
+The browser and roll selection share the same compiled reward table. Updating weights or adding/removing rewards in `config.yml` and restarting rebuilds the browser accordingly. Percentages are rounded to two decimal places; positive chances below `0.01%` display as `<0.01%`. Names that exceed the compact card or heading width are abbreviated, with the full name retained in the details text.
+
+Item icons use the vanilla texture paths indexed from [Mojang's Bedrock samples](https://github.com/Mojang/bedrock-samples/tree/main/resource_pack/textures). Included enchanted icon variants are adapted from the corresponding sample textures for the prize browser. A reward may specify an `icon: "textures/..."` path for a custom resource-pack image. Items without a known icon use a gift placeholder. The JSON UI can be rebuilt with `python3 tools/build-ui.py`; rebuilding the enchanted icon variants uses `python3 tools/build-prize-icons.py` with Pillow installed.
 
 Example Legendary entry within the existing `items` list:
 
@@ -152,7 +160,7 @@ php tools/check-rewards.php /path/to/altay/vendor/autoload.php
 python3 tools/check-ui.py
 ```
 
-The PHP check includes `tools/check-rolls.php` to verify rarity boundaries, item weights, configuration migration, 1x/3x/5x outcomes, interrupted-roll refunds, and celebration behavior.
+The PHP check includes `tools/check-rolls.php` and `tools/check-prizes.php` to verify rarity boundaries, item weights, configuration migration, 1x/3x/5x outcomes, interrupted-roll refunds, celebrations, prize navigation, displayed chances, and duplicate or invalid form responses. Menu navigation uses Altay's native form registration and validation.
 
 ---
 

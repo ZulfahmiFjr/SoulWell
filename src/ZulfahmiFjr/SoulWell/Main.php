@@ -17,13 +17,10 @@ use pocketmine\world\particle\FloatingTextParticle;
 use pocketmine\block\VanillaBlocks;
 use pocketmine\event\player\PlayerQuitEvent;
 use pocketmine\event\player\PlayerInteractEvent;
-use pocketmine\network\mcpe\protocol\ModalFormRequestPacket;
 use pocketmine\event\block\BlockBreakEvent;
-use pocketmine\event\server\DataPacketReceiveEvent;
 use pocketmine\event\server\CommandEvent;
 use pocketmine\event\server\DataPacketDecodeEvent;
 use pocketmine\event\EventPriority;
-use pocketmine\network\mcpe\protocol\ModalFormResponsePacket;
 use pocketmine\command\CommandSender;
 use pocketmine\command\Command;
 use pocketmine\scheduler\ClosureTask;
@@ -31,11 +28,11 @@ use pocketmine\scheduler\ClosureTask;
 use ZulfahmiFjr\SoulWell\libs\muqsit\invmenu\InvMenuHandler;
 use ZulfahmiFjr\SoulWell\event\SoulKeyProvider;
 use ZulfahmiFjr\SoulWell\task\RollUpdater;
-use ZulfahmiFjr\SoulWell\manager\ConfirmMenu;
 use ZulfahmiFjr\SoulWell\manager\RewardManager;
 use ZulfahmiFjr\SoulWell\service\RewardConfig;
 use ZulfahmiFjr\SoulWell\service\RewardService;
 use ZulfahmiFjr\SoulWell\service\ResourcePackService;
+use ZulfahmiFjr\SoulWell\service\MenuService;
 
 class Main extends PluginBase implements Listener{
 
@@ -45,7 +42,7 @@ class Main extends PluginBase implements Listener{
     public $coords;
     public $set = array();
     public array $rolls = [];
-    private array $forms = [];
+    public ?MenuService $menus = null;
     private ?ResourcePackService $resourcePack = null;
 
     public function hasCustomUi():bool{
@@ -64,6 +61,7 @@ class Main extends PluginBase implements Listener{
      $this->souls = new Config($this->getDataFolder().'souls.yml', Config::YAML);
      if($this->getServer()->getPluginManager()->getPlugin("ScoreHud") !== null) $this->getServer()->getPluginManager()->registerEvents(new SoulKeyProvider($this), $this);
      $this->coords = new Config($this->getDataFolder().'coords.yml', Config::YAML);
+     $this->menus = new MenuService($this);
      try{
       $text = file_get_contents($this->getResourcePath("config.yml"));
       if($text === false) throw new \RuntimeException("Unable to open bundled SoulWell defaults");
@@ -111,7 +109,6 @@ class Main extends PluginBase implements Listener{
     public function onPlayerQuit(PlayerQuitEvent $e){
      $name = strtolower($e->getPlayer()->getName());
      if(isset($this->rolls[$name])) $this->rolls[$name]->abort();
-     unset($this->forms[$name]);
      $this->souls->save();
     }
 
@@ -124,14 +121,8 @@ class Main extends PluginBase implements Listener{
       $y = $data->get("y");
       $z = $data->get("z");
       if($b->getPosition()->x === $x && $b->getPosition()->y === $y + 2 && $b->getPosition()->z === $z || $b->getPosition()->x === $x && $b->getPosition()->y === $y + 1 && $b->getPosition()->z === $z){
-       $pk = new ModalFormRequestPacket();
-       $pk->formId = 7382999;
        if(isset($this->rolls[strtolower($p->getName())])){$e->cancel();return;}
-       $encode = ConfirmMenu::create($this, $p);
-       $data = json_encode($encode);
-       $pk->formData = $data;
-       $this->forms[strtolower($p->getName())] = true;
-       $p->getNetworkSession()->sendDataPacket($pk);
+       $this->menus?->confirmation($p);
        $e->cancel();
       }
      }
@@ -181,36 +172,23 @@ class Main extends PluginBase implements Listener{
      }
     }
 
-    public function onPacketReceive(DataPacketReceiveEvent $e){
-     $pk = $e->getPacket();
-     $p = $e->getOrigin()->getPlayer();
-     if($pk instanceof ModalFormResponsePacket && $p instanceof Player){
-      $id = $pk->formId;
-      $name = strtolower($p->getName());
-      if($id !== 7382999 || !isset($this->forms[$name])) return;
-      unset($this->forms[$name]);
-      if(isset($this->rolls[$name])) return;
-      $data = json_decode($pk->formData ?? "[]", true);
-      if($id === 7382999 && isset($data) && is_int($data)){
-       $rolls = match($data){ 0 => 1, 1 => 3, 2 => 5, default => 0 };
-       if($rolls > 0){
-        if($this->rewards === null || $this->rewardService === null){
-         $p->sendMessage("§f§lSoulWell§r§f: §7§oSoulWell rewards are temporarily unavailable, please report admin§r§f!");
-         return;
-        }
-        $cost = $rolls * 10;
-        if((int) $this->souls->get(strtolower($p->getName()), 0) < $cost){
-         $p->sendMessage("§f§lSoulWell§r§f: §7§oYour Soul Keys amount is still lacking to open SoulWell§r§f!");
-         return;
-        }
-        $this->souls->set(strtolower($p->getName()), (int) $this->souls->get(strtolower($p->getName()), 0) - $cost);
-        $this->souls->save();
-        $roll = new RollUpdater($this, $p, 100, $rolls);
-        $this->rolls[$name] = $roll;
-        $this->getScheduler()->scheduleRepeatingTask($roll, 1);
-       }
-      }
+    public function startRoll(Player $p, int $rolls):void{
+     $name = strtolower($p->getName());
+     if(!$p->isOnline() || !in_array($rolls, [1, 3, 5], true) || isset($this->rolls[$name])) return;
+     if($this->rewards === null || $this->rewardService === null){
+      $p->sendMessage("§f§lSoulWell§r§f: §7§oSoulWell rewards are temporarily unavailable, please report admin§r§f!");
+      return;
      }
+     $cost = $rolls * 10;
+     if((int) $this->souls->get($name, 0) < $cost){
+      $p->sendMessage("§f§lSoulWell§r§f: §7§oYour Soul Keys amount is still lacking to open SoulWell§r§f!");
+      return;
+     }
+     $roll = new RollUpdater($this, $p, 100, $rolls);
+     $this->souls->set($name, (int) $this->souls->get($name, 0) - $cost);
+     $this->souls->save();
+     $this->rolls[$name] = $roll;
+     $this->getScheduler()->scheduleRepeatingTask($roll, 1);
     }
 
     // benerin huruf kapital otomatis biar pas player ngetik command di hp ga mental, tetep kebaca server

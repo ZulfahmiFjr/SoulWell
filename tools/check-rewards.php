@@ -122,6 +122,7 @@ try{
  }
  echo "PASS rarity boundaries, decimal percentages, weights, item/enchant compatibility, immutable loot and backed-up idempotent migration\n";
  require __DIR__."/check-rolls.php";
+ require __DIR__."/check-prizes.php";
 }finally{
  foreach(glob($temp."/*") as $file) unlink($file);
  rmdir($temp);

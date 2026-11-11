@@ -84,6 +84,7 @@ final class CheckPlayer extends Player{
     public bool $failTitle = false;
     public array $messages = [];
     public array $titles = [];
+    public array $shownForms = [];
 
     public function __construct(){
      $this->bag = new PlayerInventory($this);
@@ -129,6 +130,10 @@ final class CheckPlayer extends Player{
      $this->messages[] = $message;
     }
 
+    public function sendForm(\pocketmine\form\Form $form):void{
+     $this->shownForms[] = $form;
+    }
+
     public function sendTitle(string $title, string $subtitle = "", int $fadeIn = -1, int $stay = -1, int $fadeOut = -1):void{
      if($this->failTitle) throw new RuntimeException("Simulated title transport failure");
      $this->titles[] = [$title, $subtitle];
@@ -137,8 +142,14 @@ final class CheckPlayer extends Player{
 
 final class CheckMain extends Main{
 
+    public array $requestedRolls = [];
+
     public function hasCustomUi():bool{
      return true;
+    }
+
+    public function startRoll(Player $p, int $rolls):void{
+     $this->requestedRolls[] = $rolls;
     }
 }
 
@@ -155,6 +166,8 @@ function fixture(array $data, string $path):array{
  field($pl, PluginBase::class, "config", $config);
  field($pl, PluginBase::class, "server", $server);
  field($pl, PluginBase::class, "logger", new PluginLogger($logger, "SoulWell"));
+ field($pl, PluginBase::class, "scheduler", new \pocketmine\scheduler\TaskScheduler("SoulWellCheck"));
+ field($pl, PluginBase::class, "isEnabled", true);
  $pl->souls = new Config($path."-souls", Config::YAML);
  $pl->souls->set("soulwelltest", 0);
  $pl->rewards = new RewardManager($data, fn(int $min, int $max):int => $min);

@@ -15,6 +15,7 @@ final class RewardManager{
     private array $totals = [];
     private \Closure $random;
     private int $count = 0;
+    private array $catalog = [];
 
     public function __construct(array $data, ?\Closure $random = null){
      $this->random = $random ?? \Closure::fromCallable("random_int");
@@ -36,6 +37,7 @@ final class RewardManager{
      if(isset($effects["message"]) && (!is_string($effects["message"]) || trim($effects["message"]) === "")) throw new \InvalidArgumentException("celebration.message must contain text");
      $items = $data["items"] ?? null;
      if(!is_array($items) || !array_is_list($items) || $items === []) throw new \InvalidArgumentException("items must contain at least one reward");
+     $icons = json_decode(file_get_contents(dirname(__DIR__, 4)."/resources/item_icons.json"), true, 512, JSON_THROW_ON_ERROR);
      foreach($items as $i => $entry){
       if(!is_array($entry)) throw new \InvalidArgumentException("items[".$i."] must be a reward definition");
       $rarity = $entry["rarity"] ?? "common";
@@ -55,6 +57,8 @@ final class RewardManager{
       $lore = array_values($lore);
       $lore[] = "§r".Reward::COLORS[$rarity]."§l".strtoupper($rarity)." REWARD";
       $item->setLore($lore);
+      $infoLore = array_slice($lore, 0, -1);
+      $infoEnchants = [];
       $enchants = $entry["enchantments"] ?? [];
       if(!is_array($enchants)) throw new \InvalidArgumentException("items[".$i."].enchantments must be a mapping");
       foreach($enchants as $name => $enchantData){
@@ -62,15 +66,28 @@ final class RewardManager{
        $level = is_array($enchantData) ? ($enchantData["level"] ?? null) : null;
        if($enchant === null || !is_int($level) || $level < 1 || $level > 255) throw new \InvalidArgumentException("items[".$i."] has an unsupported enchantment or invalid level");
        $item->addEnchantment(new EnchantmentInstance($enchant, $level));
+       $infoEnchants[] = ucwords(str_replace("_", " ", $name))." ".match($level){1 => "I", 2 => "II", 3 => "III", 4 => "IV", 5 => "V", 6 => "VI", 7 => "VII", 8 => "VIII", 9 => "IX", 10 => "X", default => (string) $level};
       }
       $this->totals[$rarity] += $weight;
       if($this->totals[$rarity] > 1000000000) throw new \InvalidArgumentException("total reward weight is too large for ".$rarity);
-      $this->pools[$rarity][] = ["limit" => $this->totals[$rarity], "reward" => new Reward($item, $rarity)];
+      $reward = new Reward($item, $rarity);
+      $this->pools[$rarity][] = ["limit" => $this->totals[$rarity], "reward" => $reward];
+      $iconId = str_replace("minecraft:", "", $id);
+      $icon = $entry["icon"] ?? ($icons[($item->hasEnchantments() ? "enchanted:" : "").$iconId] ?? $icons[$iconId] ?? "textures/ui/soulwell/prize_unknown");
+      if(!is_string($icon) || !preg_match('~^textures/[a-zA-Z0-9_./-]+$~D', $icon) || str_contains($icon, "..")) throw new \InvalidArgumentException("items[".$i."].icon must be a local texture path");
+      $this->catalog[$i] = ["index" => $i, "reward" => $reward, "weight" => $weight, "icon" => $icon, "type" => $item->getVanillaName(), "lore" => $infoLore, "enchantments" => $infoEnchants];
       $this->count++;
      }
      foreach($this->rates as $rarity => $rate){
       if($rate > 0 && $this->totals[$rarity] === 0) throw new \InvalidArgumentException("rarities.".$rarity." has a positive chance but no rewards");
      }
+     foreach($this->catalog as &$entry){
+      $rarity = $entry["reward"]->getRarity();
+      $entry["rarityChance"] = $this->rates[$rarity] / 100;
+      $entry["chance"] = $entry["rarityChance"] * $entry["weight"] / $this->totals[$rarity];
+      $entry["poolWeight"] = $this->totals[$rarity];
+     }
+     unset($entry);
     }
 
     public function draw():Reward{
@@ -88,6 +105,14 @@ final class RewardManager{
 
     public function getCount():int{
      return $this->count;
+    }
+
+    public function getCatalog(?string $rarity = null):array{
+     return $rarity === null ? $this->catalog : array_values(array_filter($this->catalog, fn(array $entry):bool => $entry["reward"]->getRarity() === $rarity));
+    }
+
+    public function getRarityChance(string $rarity):float{
+     return ($this->rates[$rarity] ?? 0) / 100;
     }
 
     public function getSummary():string{
