@@ -11,7 +11,7 @@
 
 ## 📥 Download
 
-[**Download Latest .phar (v1.6.5)**](https://poggit.pmmp.io/r/256010/SoulWell.phar)  
+[**Download Latest .phar (v1.6.5)**](https://github.com/ZulfahmiFjr/SoulWell/releases/download/v1.6.5/SoulWell_v1.6.5.phar)  
 Compatible with **PocketMine-MP API 5.0.0 - 5.27.0+**
 
 ---
