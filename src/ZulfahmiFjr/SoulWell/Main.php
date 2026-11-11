@@ -20,6 +20,7 @@ use pocketmine\event\player\PlayerInteractEvent;
 use pocketmine\network\mcpe\protocol\ModalFormRequestPacket;
 use pocketmine\event\block\BlockBreakEvent;
 use pocketmine\event\server\DataPacketReceiveEvent;
+use pocketmine\event\server\CommandEvent;
 use pocketmine\network\mcpe\protocol\ModalFormResponsePacket;
 use pocketmine\command\CommandSender;
 use pocketmine\command\Command;
@@ -221,13 +222,32 @@ class Main extends PluginBase implements Listener{
      }
     }
 
+    // benerin huruf kapital otomatis biar pas player ngetik command di hp ga mental, tetep kebaca server
+    public function onCommandEvent(CommandEvent $e):void{
+     $cmd = $e->getCommand();
+     $parts = explode(" ", $cmd, 2);
+     $label = strtolower($parts[0]);
+     if($label === "soulwell" || $label === "sw"){
+      $e->setCommand($label.(isset($parts[1]) ? " ".$parts[1] : ""));
+     }
+    }
+
     public function onCommand(CommandSender $p, Command $command, string $label, array $args):bool{
-     switch($command->getName()){
-      case "soulwell":{
+     $sub = isset($args[0]) ? strtolower($args[0]) : "";
+     switch($sub){
+      case "":{
+       $msg = "§l§9»» §r§e§oSoulWell Commands§r§f:\n§f- §e§o/sw info§r§f: §7§oDisplay plugin information§r§f";
+       if($this->getServer()->isOp($p->getName()) || !$p instanceof Player){
+        $msg .= "\n§f- §e§o/sw create§r§f: §7§oAdd SoulWell block§r§f\n§f- §e§o/sw key [player-name] [count]§r§f: §7§oAdd Soul Keys to player§r§f";
+       }
+       $p->sendMessage($msg);
+       break;
+      }
+      case "info":{
        $p->sendMessage("§l§9»» §r§e§oHi this plugin made by ZulfahmiFjr§r§f, §e§oyou can contact me at§r§f:\n§f- §e§oDiscord§r§f: ZulfahmiFjr#8525\n§f- §e§oWhatsapp§r§f: +6287880267100\n§f- §e§oEmail§r§f: 6931856cg@gmail.com\n§e§oPlease take care this plugin§r§f! §e§oThanks§r§f :)");
        break;
       }
-      case "addwell":{
+      case "create":{
        if(!$p instanceof Player){
         $p->sendMessage("§f§lSoulWell§r§f: §7§oPlease use this command in the game§r§f!");
         return false;
@@ -240,33 +260,37 @@ class Main extends PluginBase implements Listener{
        $p->sendMessage("§f§lSoulWell§r§f: §7§oPlease destroy 1 block§r§f!");
        break;
       }
-      case "addsouls":{
+      case "key":{
        if(!$this->getServer()->isOp($p->getName()) && $p instanceof Player){
         $p->sendMessage("§f§lSoulWell§r§f: §7§oYou have no permission to use this command§r§f!");
         return false;
        }
-       if(!isset($args[0])){
-        $p->sendMessage("§f§lSoulWell§r§f: §7§oPlease use command§r§f: /addsouls [player-name]");
-        return false;
-       }
        if(!isset($args[1])){
-        $p->sendMessage("§f§lSoulWell§r§f: §7§oPlease use command§r§f: /addsouls [player-name] [count]");
+        $p->sendMessage("§f§lSoulWell§r§f: §7§oPlease use command§r§f: /sw key [player-name]");
         return false;
        }
-       if(!is_numeric($args[1]) && $args[1] <= 0){
+       if(!isset($args[2])){
+        $p->sendMessage("§f§lSoulWell§r§f: §7§oPlease use command§r§f: /sw key [player-name] [count]");
+        return false;
+       }
+       if(!is_numeric($args[2]) || (int) $args[2] <= 0){
         $p->sendMessage("§f§lSoulWell§r§f: §7§oPlease enter the number of soul keys correctly§r§f!");
         return false;
        }
-       $t = $this->getServer()->getPlayerExact($args[0]);
+       $t = $this->getServer()->getPlayerExact($args[1]);
        if($t instanceof Player){
-        $t->sendMessage("§f§lSoulWell§r§f: §7§oYou have sent Soul Keys to the amount§r§f ".$args[1].".");
+        $t->sendMessage("§f§lSoulWell§r§f: §7§oYou have sent Soul Keys to the amount§r§f ".$args[2].".");
         $name = strtolower($t->getName());
        }else{
-        $name = strtolower($args[0]);
+        $name = strtolower($args[1]);
        }
-       $this->souls->set($name, $this->souls->get($name) + $args[1]);
+       $this->souls->set($name, (int) $this->souls->get($name, 0) + (int) $args[2]);
        $this->souls->save();
-       $p->sendMessage("§f§lSoulWell§r§f: §7§oYou have successfully added §r§f".$name." §7§oSoul Keys to the amount §r§f".$args[1].".");
+       $p->sendMessage("§f§lSoulWell§r§f: §7§oYou have successfully added §r§f".$name." §7§oSoul Keys to the amount §r§f".$args[2].".");
+       break;
+      }
+      default:{
+       $p->sendMessage("§f§lSoulWell§r§f: §7§oPlease use command§r§f: /sw [info|create|key]");
        break;
       }
      }

@@ -8,12 +8,7 @@ api: 5.27.0
 commands:
     soulwell:
         description: SoulWell plugin
-        permission: soulwell.command
-    addwell:
-        description: Add SoulWell block
-        permission: soulwell.command
-    addsouls:
-        description: Add Soul Keys player
+        aliases: [sw, SoulWell, SOULWELL]
         permission: soulwell.command
 
 permissions:
