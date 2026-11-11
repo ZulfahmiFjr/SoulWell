@@ -38,6 +38,31 @@ The `dev` branch contains the v1.7.5 UI update, including login pack priority, m
 
 ## 📸 In-Game Screenshots
 
+### Nautic SoulWell JSON UI
+
+The current `dev` interface features a navy-and-cyan confirmation menu and vertical reward reels with gold selection markers. The screenshots below show the confirmation menu and all three roll modes in Minecraft Bedrock. The roll panels show the v1.7.5 interface verified in-game.
+
+<table align="center">
+  <tr>
+    <td align="center"><b>Roll Selection Menu</b></td>
+    <td align="center"><b>1x Roll</b></td>
+  </tr>
+  <tr>
+    <td><img src="screenshots/nautic_confirm_menu.jpg" alt="Nautic SoulWell confirmation menu with Soul Keys balance and three roll choices" width="450"/></td>
+    <td><img src="screenshots/nautic_roll_1x.jpg" alt="Nautic SoulWell single reward reel with a gold selection marker" width="450"/></td>
+  </tr>
+  <tr>
+    <td align="center"><b>3x Roll</b></td>
+    <td align="center"><b>5x Roll</b></td>
+  </tr>
+  <tr>
+    <td><img src="screenshots/nautic_roll_3x.jpg" alt="Nautic SoulWell three reward reels with a gold selection row" width="450"/></td>
+    <td><img src="screenshots/nautic_roll_5x.jpg" alt="Nautic SoulWell five reward reels with a gold selection row" width="450"/></td>
+  </tr>
+</table>
+
+### Previous Interface (v1.6.5)
+
 These screenshots show the previous v1.6.5 interface and are retained as a record of the working roll system.
 
 <table align="center">
