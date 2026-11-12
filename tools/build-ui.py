@@ -137,6 +137,14 @@ def prize_textures():
     tile("prize_card_hover", (56, 81, 58), (183, 209, 150))
     tile("prize_card_pressed", (66, 96, 59), (211, 230, 181))
     tile("prize_info", (43, 49, 37), (142, 157, 121))
+    p = image(16, 16, (22, 24, 20, 255))
+    rect(p, (0, 0, 16, 1), (12, 14, 11))
+    rect(p, (0, 0, 1, 16), (12, 14, 11))
+    rect(p, (0, 15, 16, 16), (79, 85, 70))
+    rect(p, (15, 0, 16, 16), (79, 85, 70))
+    rect(p, (1, 1, 15, 2), (17, 20, 16))
+    rect(p, (1, 1, 2, 15), (17, 20, 16))
+    png("prize_scroll_background", p, 2)
     tile("prize_button", (64, 87, 55), (177, 192, 148))
     tile("prize_button_hover", (83, 111, 66), (188, 214, 151))
     tile("prize_button_pressed", (52, 76, 44), (213, 233, 184))
@@ -214,7 +222,7 @@ def prize_controls(ui):
             tab_controls.append({"tab_" + rarity + "@soulwell.prize_tab": {"collection_index": i, "offset": [8 + i * 71, 26], "enabled": rarity != active, "$focus_enabled": rarity != active, "$sw_tab_default": "textures/ui/soulwell/tab_" + rarity + ("_active" if rarity == active else ""), "$sw_tab_hover": "textures/ui/soulwell/tab_" + rarity + "_hover", "$sw_tab_active": "textures/ui/soulwell/tab_" + rarity + "_active"}})
         tab_controls.append({"back@soulwell.prize_back": {"collection_index": 4, "offset": [10, 149]}})
         ui["prize_grid_" + active] = collection((276, ((count + 1) // 2) * 38), [{"item_" + str(i) + "@soulwell.prize_card": {"collection_index": 5 + i, "offset": [(i % 2) * 138, (i // 2) * 38]}} for i in range(count)])
-        ui["prize_list_" + active] = {"type": "panel", "size": [300, 176], "layer": 5, "$sw_prize_frame": "textures/ui/soulwell/prize_frame_" + active, "controls": [{"frame": picture("prize_panel", (300, 176), layer=0)}, {"title": label("§lPRIZE LIST", (248, 12), (24, 8), text_alignment="center", color=[0.16, 0.22, 0.12])}, {"tabs": collection((300, 176), tab_controls)}, {"chance": label("#form_text", (280, "default"), (8, 50), font_scale_factor=0.85, text_alignment="center", bindings=[{"binding_name": "#form_text"}])}, {"hint": label("TAP FOR DETAILS", (280, "default"), (8, 60), font_scale_factor=0.65, text_alignment="center", color=[0.65, 0.70, 0.58])}, {"list@common.scrolling_panel": scroll((280, 72), (10, 69), "soulwell.prize_grid_" + active)}, {"close@soulwell.close": {}}]}
+        ui["prize_list_" + active] = {"type": "panel", "size": [300, 176], "layer": 5, "$sw_prize_frame": "textures/ui/soulwell/prize_frame_" + active, "controls": [{"frame": picture("prize_panel", (300, 176), layer=0)}, {"title": label("§lPRIZE LIST", (248, 12), (24, 8), text_alignment="center", color=[0.16, 0.22, 0.12])}, {"tabs": collection((300, 176), tab_controls)}, {"chance": label("#form_text", (280, "default"), (8, 50), font_scale_factor=0.85, text_alignment="center", bindings=[{"binding_name": "#form_text"}])}, {"hint": label("TAP FOR DETAILS", (280, "default"), (8, 60), font_scale_factor=0.65, text_alignment="center", color=[0.65, 0.70, 0.58])}, {"scroll_background": picture("prize_scroll_background", (284, 74), (8, 68), layer=1)}, {"list@common.scrolling_panel": scroll((280, 72), (10, 69), "soulwell.prize_grid_" + active)}, {"close@soulwell.close": {}}]}
     ui["prize_detail_info"] = collection((104, "100%c"), [{"text": {**form_label((98, "default"), (3, 3), 0.85), "collection_index": 4}}])
     for rarity in colors:
         meta = [{"heading": {"type": "panel", "size": [160, 48], "offset": [12, 34], "anchor_from": "top_left", "anchor_to": "top_left", "collection_index": 1, "bindings": details, "controls": [{"icon": form_icon((34, 34), (3, 3))}, {"frame": {**picture("prize_frame_legendary", (42, 42), layer=8), "texture": "textures/ui/soulwell/prize_frame_" + rarity}}, {"name": form_label((116, 30), (46, 4), 0.85)}]}}, {"rarity": {**form_label((116, 14), (58, 57), 0.8), "collection_index": 2}}, {"chance": {**form_label((160, 14), (12, 94), 1.0), "collection_index": 3}}, {"odds": {**form_label((160, 28), (12, 109), 0.75), "collection_index": 5}}, {"back@soulwell.prize_back": {"collection_index": 0, "offset": [12, 139], "size": [158, 18], "$sw_back_idle_alpha": 1}}]
