@@ -89,10 +89,12 @@ class Main extends PluginBase implements Listener{
       if(!is_array($defaults)) throw new \RuntimeException("Unable to read bundled SoulWell defaults");
       if(RewardConfig::upgrade($this->getConfig(), $defaults)) $this->getLogger()->info("SoulWell rarity config upgraded, original rewards preserved and config backup saved");
       $this->rewards = new RewardManager($this->getConfig()->getAll());
+      \ZulfahmiFjr\SoulWell\service\NativeRoll::initialize($this->getDataFolder()."native");
       $this->rewardService = new RewardService($this);
+      $this->getLogger()->info("SoulWell Rust FFI roll planner active, ABI 1, precomputed inventory changes");
       $this->getLogger()->info("SoulWell loaded ".$this->rewards->getCount()." rewards, ".$this->rewards->getSummary());
      }catch(\Throwable $e){
-      $this->getLogger()->error("SoulWell rolls disabled, fix config and restart: ".$e->getMessage());
+      $this->getLogger()->error("SoulWell rolls disabled, check config and native backend, then restart: ".$e->getMessage());
      }
      if($this->getConfig()->get("classic-chest-rp")){
       $pack = new ResourcePackService($this);
@@ -199,7 +201,13 @@ class Main extends PluginBase implements Listener{
       $p->sendMessage($this->text($p, "roll.insufficient"));
       return;
      }
-     $roll = new RollUpdater($this, $p, 100, $rolls);
+     try{
+      $roll = new RollUpdater($this, $p, 100, $rolls);
+     }catch(\Throwable $e){
+      $this->getLogger()->logException($e);
+      $p->sendMessage($this->text($p, "roll.unavailable"));
+      return;
+     }
      $this->souls->set($name, (int) $this->souls->get($name, 0) - $cost);
      $this->souls->save();
      $this->rolls[$name] = $roll;

@@ -123,7 +123,7 @@ foreach([1, 3, 5] as $count){
  $chest = $rollPlayer->window;
  for($tick = 0; $tick < 500 && isset($rollMain->rolls["soulwelltest"]); $tick++) $roll->onRun();
  check(count($rollPlayer->bag->getContents()) === $count && count($rollServer->messages) === $count && count($rollPlayer->titles) === 1, "Localized multi-roll changed settlement counts");
- foreach($chest->getContents() as $item) check($item->equalsExact(array_values($rollPlayer->bag->getContents())[0]), "Localized winning reel and delivered item differ");
+ foreach($chest->getContents() as $slot => $item) check($item->equalsExact(array_values($rollPlayer->bag->getContents())[array_search($slot % 9, $count === 5 ? [0, 2, 4, 6, 8] : ($count === 3 ? [2, 4, 6] : [4]), true)]), "Localized winning reel and delivered item differ");
  check($rollLogger->errors === [], "Localized roll raised an exception");
 }
 if(isset($argv[2])){

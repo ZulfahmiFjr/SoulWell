@@ -30,6 +30,7 @@ function rejects(array $data, string $message):void{
  throw new RuntimeException($message);
 }
 
+\ZulfahmiFjr\SoulWell\service\NativeRoll::initialize(sys_get_temp_dir()."/soulwell-native-check");
 $defaults = yaml_parse_file($root."/resources/config.yml");
 $roll = 1;
 $pick = 1;
@@ -122,6 +123,7 @@ try{
  }
  echo "PASS rarity boundaries, decimal percentages, weights, item/enchant compatibility, immutable loot and backed-up idempotent migration\n";
  require __DIR__."/check-rolls.php";
+ require __DIR__."/check-native.php";
  require __DIR__."/check-prizes.php";
  require __DIR__."/check-languages.php";
 }finally{

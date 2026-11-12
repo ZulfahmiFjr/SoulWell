@@ -16,6 +16,7 @@ final class RewardManager{
     private \Closure $random;
     private int $count = 0;
     private array $catalog = [];
+    private array $nativeConfig = [];
 
     public function __construct(array $data, ?\Closure $random = null){
      $this->random = $random ?? \Closure::fromCallable("random_int");
@@ -88,6 +89,11 @@ final class RewardManager{
       $entry["poolWeight"] = $this->totals[$rarity];
      }
      unset($entry);
+     $this->nativeConfig = [...array_values($this->rates), $this->count];
+     foreach($this->catalog as $entry){
+      $this->nativeConfig[] = $entry["reward"]->getRank();
+      $this->nativeConfig[] = $entry["weight"];
+     }
     }
 
     public function draw():Reward{
@@ -101,6 +107,10 @@ final class RewardManager{
       }
      }
      throw new \LogicException("Unable to select a SoulWell reward");
+    }
+
+    public function getNativeConfig():array{
+     return $this->nativeConfig;
     }
 
     public function getCount():int{

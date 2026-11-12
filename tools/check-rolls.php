@@ -189,9 +189,11 @@ function fixture(array $data, string $path):array{
 }
 
 function rollFixture(Main $pl, CheckPlayer $p, int $count):RollUpdater{
+ field($pl->rewards, RewardManager::class, "random", function(int $min, int $max):int{throw new LogicException("PHP random must not run in the scrolling path");});
  $roll = (new ReflectionClass(RollUpdater::class))->newInstanceWithoutConstructor();
  $p->window = new SimpleInventory(54);
  foreach(["pl" => $pl, "p" => $p, "rolls" => $count, "columns" => $count === 5 ? [0, 2, 4, 6, 8] : ($count === 3 ? [2, 4, 6] : [4]), "wellMenu" => $p->window, "sent" => true, "opened" => true, "ready" => 9] as $name => $value) field($roll, RollUpdater::class, $name, $value);
+ field($roll, RollUpdater::class, "plan", new \ZulfahmiFjr\SoulWell\service\RollPlan($pl->rewards, $count, $pl->hasCustomUi()));
  $pl->rolls["soulwelltest"] = $roll;
  return $roll;
 }
@@ -210,7 +212,7 @@ foreach([1, 3, 5] as $count){
  check(count($p->titles) === 1 && $p->titles[0][0] === "§6§lLEGENDARY!", "Multi-roll must send one highest-rarity title");
  check(count(array_filter($p->testWorld->sounds, fn(Sound $sound):bool => $sound instanceof TotemUseSound)) === 1, "Multi-roll must play the Totem celebration once");
  foreach($chest->getContents() as $slot => $item){
-  check(intdiv($slot, 9) === 3 && $item->equalsExact(array_values($p->bag->getContents())[0]), "Winning reel row and delivered item differ");
+  check(intdiv($slot, 9) === 3 && $item->equalsExact(array_values($p->bag->getContents())[array_search($slot % 9, $count === 5 ? [0, 2, 4, 6, 8] : ($count === 3 ? [2, 4, 6] : [4]), true)]), "Winning reel row and delivered item differ");
  }
  $roll->closeInventory($p);
  $roll->abort();

@@ -6,16 +6,13 @@ namespace ZulfahmiFjr\SoulWell\task;
 
 use pocketmine\scheduler\Task;
 use pocketmine\player\Player;
-use pocketmine\block\VanillaBlocks;
-use pocketmine\block\utils\DyeColor;
 
 use ZulfahmiFjr\SoulWell\Main;
+use ZulfahmiFjr\SoulWell\service\RollPlan;
 use ZulfahmiFjr\SoulWell\libs\muqsit\invmenu\InvMenu;
 use ZulfahmiFjr\SoulWell\manager\NoteBlockSound;
 
 class RollUpdater extends Task{
-
-    private const DELAYS = [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 3, 3, 3, 3, 4, 4, 4, 5, 5, 5, 7, 9, 12, 16, 22];
 
     private Main $pl;
     private Player $p;
@@ -24,6 +21,7 @@ class RollUpdater extends Task{
     private array $columns = [];
     private array $predictions = [];
     private InvMenu $menu;
+    private RollPlan $plan;
     private bool $sent = false;
     private bool $opened = false;
     private bool $started = false;
@@ -38,6 +36,7 @@ class RollUpdater extends Task{
      $this->pl = $pl;
      $this->p = $p;
      $this->rolls = $rolls;
+     $this->plan = new RollPlan($pl->rewards, $rolls, $pl->hasCustomUi());
      $this->columns = $rolls === 5 ? [0, 2, 4, 6, 8] : ($rolls === 3 ? [2, 4, 6] : [4]);
      $menu = InvMenu::create(InvMenu::TYPE_DOUBLE_CHEST);
      $menu->setName($pl->text($p, "ui.inventory_title", ["{ROLLS}" => (string) $rolls]));
@@ -92,59 +91,25 @@ class RollUpdater extends Task{
       if($this->p->getCurrentWindow() !== $this->wellMenu){$this->abort();return;}
       $this->ready++;
       if($this->ready < 10) return;
-      foreach($this->columns as $c) $this->predictions[$c] = $this->pl->rewards->draw();
+      $this->predictions = $this->plan->predictions;
       $this->started = true;
       $this->pl->getLogger()->info("SoulWell rolling ".$this->rolls." column(s) for ".$this->p->getName());
      }
      $p = $this->p;
      $wellInventory = $this->wellMenu;
-     if($this->stepIndex < count(self::DELAYS)){
+     if($this->stepIndex < count($this->plan->frames)){
       if($this->stepCooldown > 0){
        $this->stepCooldown--;
        return;
       }
-      if(!$this->pl->hasCustomUi()){
-       $i = 0;
-       $colors = DyeColor::getAll();
-       $itemEndRod = VanillaBlocks::END_ROD()->asItem();
-       while($i < 54){
-        $col = $i % 9;
-        $row = intdiv($i, 9);
-        if(!in_array($col, $this->columns, true)){
-         if($row === 3 && $col >= min($this->columns) - 1 && $col <= max($this->columns) + 1){
-          $wellInventory->setItem($i, $itemEndRod);
-         }else{
-          $randomColor = $colors[array_rand($colors)];
-          $wellInventory->setItem($i, VanillaBlocks::STAINED_GLASS_PANE()->setColor($randomColor)->asItem());
-         }
-        }
-        $i++;
-       }
-      }
-      $note = $this->stepIndex >= count(self::DELAYS) - 5 ? match(count(self::DELAYS) - 1 - $this->stepIndex){ 0 => 24, 1 => 20, 2 => 18, 3 => 16, default => 14 } : match($this->stepIndex % 4){ 0 => 5, 1 => 2, 2 => 9, default => 12 };
-      $p->getWorld()->addSound($p->getPosition(), new NoteBlockSound($note), [$p]);
-      foreach($this->columns as $c){
-       $reward = $this->stepIndex === count(self::DELAYS) - 4 ? $this->predictions[$c] : $this->pl->rewards->draw();
-       $item = $reward->getItem();
-       $wellInventory->setItem($c + 45, $wellInventory->getItem($c + 36));
-       $wellInventory->setItem($c + 36, $wellInventory->getItem($c + 27));
-       $wellInventory->setItem($c + 27, $wellInventory->getItem($c + 18));
-       $wellInventory->setItem($c + 18, $wellInventory->getItem($c + 9));
-       $wellInventory->setItem($c + 9, $wellInventory->getItem($c));
-       $wellInventory->setItem($c, $item);
-      }
-      $this->stepCooldown = self::DELAYS[$this->stepIndex] - 1;
+      $p->getWorld()->addSound($p->getPosition(), new NoteBlockSound($this->plan->notes[$this->stepIndex]), [$p]);
+      foreach($this->plan->frames[$this->stepIndex] as $slot => $item) $wellInventory->setItem($slot, $item);
+      $this->stepCooldown = $this->plan->delays[$this->stepIndex] - 1;
       $this->stepIndex++;
       return;
      }
      if($this->finishCooldown === 15){
-      foreach($this->columns as $c){
-       $wellInventory->setItem($c, VanillaBlocks::AIR()->asItem());
-       $wellInventory->setItem($c + 9, VanillaBlocks::AIR()->asItem());
-       $wellInventory->setItem($c + 18, VanillaBlocks::AIR()->asItem());
-       $wellInventory->setItem($c + 36, VanillaBlocks::AIR()->asItem());
-       $wellInventory->setItem($c + 45, VanillaBlocks::AIR()->asItem());
-      }
+      foreach($this->plan->finished as $slot => $item) $wellInventory->setItem($slot, $item);
      }
      if($this->finishCooldown > 0){
       $this->finishCooldown--;

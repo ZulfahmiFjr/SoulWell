@@ -2,7 +2,7 @@
 
 <p align="center">
   <b>Lucky Draw Plugin inspired by Hypixel's Soul Well</b><br>
-  <i>Development Version: <b>v1.10.3</b> | Supports PMMP API 5.27.0+</i>
+  <i>Development Version: <b>v1.11.0</b> | Supports PMMP API 5.27.0+</i>
 </p>
 
 
@@ -19,6 +19,7 @@ Compatible with **PocketMine-MP API 5.0.0 - 5.27.0+**
 
 - **Hypixel Soul Well Experience**: Authentic lucky draw roulette inspired by Hypixel's SkyWars Soul Well.
 - **Multi-Roll System**: Open **1x Roll** (10 Keys), **3x Roll** (30 Keys), or **5x Roll** (50 Keys) at once in multi-column chest displays.
+- **Rust FFI Roll Planner**: Secure weighted draws, reel shifts, filler colors, and changed-slot detection are prepared in one native call before keys are charged. Scrolling sends only prepared slot changes, with no PHP reward randomization during animation. Existing odds, timing, sounds, and UI assets are preserved.
 - **Smooth Deceleration Physics**: Roulette spins start ultra-fast (1-tick rate) and progressively decelerate across smooth timing curves before landing on the winning center row.
 - **Dynamic Audio Feedback**: Realistic Note Block tick sounds with rising pitch during deceleration, followed by a triumphant level-up chime upon reward delivery.
 - **Anti-Loss & Auto-Refund**: Comprehensive session protection that automatically refunds Soul Keys if a roll is interrupted, window-closed, or disconnected before starting.
@@ -37,7 +38,7 @@ Compatible with **PocketMine-MP API 5.0.0 - 5.27.0+**
 - **SoulWell-Only Inventory Design**: Dedicated vertical 1x, 3x, and 5x reward reels use actual container items and stack counts. Regular chests and unrelated forms keep their existing layouts.
 - **Resource Pack Compatibility**: The pack is rebuilt automatically on startup, preserving the existing form dispatcher and shared UI definitions from other server packs.
 
-The `dev` branch contains v1.10.3, adding English and formal Indonesian language selection while retaining the Pets Sanctuary interface. Each form route gates a separate wrapper with its own title property, and localized form titles select a single menu without exposing inherited form controls. The Prize List label is centered beside its gift icon, the confirmation footer and prize card text are vertically centered, the 1x, 3x, and 5x labels are vertically centered in their buttons, and Back has a visible button background with the same bottom inset as Back to Prize List. Compact rarity tabs keep their bold labels vertically centered and highlight the current category with a bright border and underline; the active tab cannot be selected again. The rarity chance and details hint sit closer together, and the prize scrolling area is raised to leave more space above Back. A taller, dark recessed background gives the two prize rows equal top and bottom padding. The gaps from this area to the details hint above and Back below are also equal. Weighted rarities and win celebrations retain their existing behavior. The confirmation menu groups all three roll buttons on a fixed dark inset, with balanced greeting/Soul Keys spacing and a Prize List button centered between the roll panel and footer separator. The bordered footer and stone-gray, sage, green, and gold styling match the browser. The interface retains login pack priority and marker-based container routing. A separate visibility wrapper keeps existing server form dispatchers hidden while SoulWell is open, and close buttons are inset within every SoulWell panel header. Both classic and data-driven container screens recognize SoulWell roll menus. The published download above remains v1.6.5 until a new release is published. Reconnect to the server after the UI pack update to download version 1.10.3.
+The `dev` branch contains v1.11.0, moving roll planning to Rust FFI while retaining English and formal Indonesian language selection while retaining the Pets Sanctuary interface. Each form route gates a separate wrapper with its own title property, and localized form titles select a single menu without exposing inherited form controls. The Prize List label is centered beside its gift icon, the confirmation footer and prize card text are vertically centered, the 1x, 3x, and 5x labels are vertically centered in their buttons, and Back has a visible button background with the same bottom inset as Back to Prize List. Compact rarity tabs keep their bold labels vertically centered and highlight the current category with a bright border and underline; the active tab cannot be selected again. The rarity chance and details hint sit closer together, and the prize scrolling area is raised to leave more space above Back. A taller, dark recessed background gives the two prize rows equal top and bottom padding. The gaps from this area to the details hint above and Back below are also equal. Weighted rarities and win celebrations retain their existing behavior. The confirmation menu groups all three roll buttons on a fixed dark inset, with balanced greeting/Soul Keys spacing and a Prize List button centered between the roll panel and footer separator. The bordered footer and stone-gray, sage, green, and gold styling match the browser. The interface retains login pack priority and marker-based container routing. A separate visibility wrapper keeps existing server form dispatchers hidden while SoulWell is open, and close buttons are inset within every SoulWell panel header. Both classic and data-driven container screens recognize SoulWell roll menus. The published download above remains v1.6.5 until a new release is published. Reconnect to the server after the UI pack update to download version 1.11.0.
 
 ---
 
@@ -95,6 +96,14 @@ Check out SoulWell in action on YouTube:
 7. Use `/sw lang ind` for Indonesian or `/sw lang eng` for English. English is the initial language. Preferences are saved in `plugin_data/SoulWell/languages.yml`; switching language requires no reconnect after downloading the updated pack. Finish an active roll before changing language.
 
 ---
+
+## Native Roll Backend
+
+Development version v1.11.0 requires **64-bit PHP with FFI enabled on Linux x86_64**. The bundled library requires glibc 2.34 or newer and libgcc_s. It is checksum-checked and extracted from the PHAR into `plugin_data/SoulWell/native/` under a content-hashed filename. Startup logs confirm `SoulWell Rust FFI roll planner active`. If initialization or planning fails, rolls remain unavailable and no Soul Keys are charged; there is no PHP random fallback for scrolling.
+
+The dependency-free Rust source is in `native/roll.rs`. Run `native/build.sh` with Rust 1.75+ before packaging to execute native tests, rebuild `resources/native/libsoulwell_roll.so`, and update its SHA-256. Rust uses buffered operating-system entropy and unbiased rejection sampling. Tier percentages and within-tier weights remain separate selections. PHP still handles inventory packets, sound delivery, and reward settlement, so this does not guarantee that network or client lag disappears.
+
+Validation uses `tools/check-rewards.php` with the Altay autoloader, plus `tools/check-ui.py`. `tools/benchmark-roll.php` exercises bounded 1x/3x/5x rolls with the installed Altay inventory and protocol encoder in memory; it does not start a server or connect fake players to production.
 
 ## Languages
 
