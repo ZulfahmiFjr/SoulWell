@@ -125,7 +125,7 @@ class RollUpdater extends Task{
       $p->getWorld()->addSound($p->getPosition(), new NoteBlockSound($note), [$p]);
       foreach($this->columns as $c){
        $reward = $this->stepIndex === count(self::DELAYS) - 4 ? $this->predictions[$c] : $this->pl->rewards->draw();
-       $item = $reward->getItem($this->pl->lang($p));
+       $item = $reward->getItem();
        $wellInventory->setItem($c + 45, $wellInventory->getItem($c + 36));
        $wellInventory->setItem($c + 36, $wellInventory->getItem($c + 27));
        $wellInventory->setItem($c + 27, $wellInventory->getItem($c + 18));

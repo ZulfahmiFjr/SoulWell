@@ -23,7 +23,7 @@ final class PrizeMenu{
      $buttons[] = ["text" => LanguageService::text($lang, "ui.back")];
      foreach($manager->getCatalog($rarity) as $entry){
       $reward = $entry["reward"];
-      $buttons[] = ["text" => "§f".mb_strimwidth($reward->getName($lang), 0, 20, "...", "UTF-8")."\n§7x".$reward->getItem()->getCount()."\n".$reward->getColor()."§l".mb_strtoupper(LanguageService::text($lang, "rarity.".$rarity), "UTF-8"), "image" => ["type" => "path", "data" => $entry["icon"]]];
+      $buttons[] = ["text" => "§f".mb_strimwidth($reward->getName(), 0, 20, "...", "UTF-8")."\n§7x".$reward->getItem()->getCount()."\n".$reward->getColor()."§l".mb_strtoupper(LanguageService::text($lang, "rarity.".$rarity), "UTF-8"), "image" => ["type" => "path", "data" => $entry["icon"]]];
      }
      $text = Reward::COLORS[$rarity].LanguageService::text($lang, "ui.rarity_chance", ["{RARITY}" => LanguageService::text($lang, "rarity.".$rarity), "{CHANCE}" => self::percent($manager->getRarityChance($rarity))]);
      return ["type" => "form", "title" => $custom ? LanguageService::text($lang, "ui.prize_form_title")."§0".$rarity : LanguageService::text($lang, "ui.prize_form_title"), "content" => $text, "buttons" => $buttons];
@@ -37,10 +37,10 @@ final class PrizeMenu{
      $odds = LanguageService::text($lang, $entry["weight"] === 1 ? "ui.odds" : "ui.weight", ["{POOL}" => (string) $entry["poolWeight"], "{WEIGHT}" => (string) $entry["weight"], "{RARITY}" => $reward->getLabel($lang)]);
      $chance = LanguageService::text($lang, "ui.chance", ["{CHANCE}" => self::percent($entry["chance"])]);
      $sub = LanguageService::text($lang, "ui.detail_rarity_chance", ["{RARITY}" => $reward->getLabel($lang), "{CHANCE}" => $tier])."\n§r§7".$odds;
-     $name = mb_strimwidth(strtoupper($reward->getName($lang)), 0, 23, "...", "UTF-8");
-     $info = ($name !== strtoupper($reward->getName($lang)) ? "§f".$reward->getName($lang)."\n" : "")."§7".LanguageService::literal($lang, $entry["type"])."\n";
-     foreach($entry["enchantments"] as $enchant) $info .= "§d".LanguageService::literal($lang, $enchant)."\n";
-     if($entry["lore"] !== []) $info .= "\n§7§o".implode("\n§7§o", array_map(fn(string $line):string => LanguageService::literal($lang, TextFormat::clean($line)), $entry["lore"]));
+     $name = mb_strimwidth(strtoupper($reward->getName()), 0, 23, "...", "UTF-8");
+     $info = ($name !== strtoupper($reward->getName()) ? "§f".$reward->getName()."\n" : "")."§7".$entry["type"]."\n";
+     foreach($entry["enchantments"] as $enchant) $info .= "§d".$enchant."\n";
+     if($entry["lore"] !== []) $info .= "\n§7§o".implode("\n§7§o", array_map(fn(string $line):string => TextFormat::clean($line), $entry["lore"]));
      $buttons = [["text" => LanguageService::text($lang, "ui.back_list")]];
      if($custom){
       $buttons[] = ["text" => $reward->getColor()."§l".$name, "image" => ["type" => "path", "data" => $entry["icon"]]];
@@ -49,7 +49,7 @@ final class PrizeMenu{
       $buttons[] = ["text" => $info];
       $buttons[] = ["text" => $sub];
      }
-     return ["type" => "form", "title" => $custom ? LanguageService::text($lang, "ui.detail_form_title")."§0".$rarity : LanguageService::text($lang, "ui.detail_form_title"), "content" => $reward->getColor().$reward->getName($lang)."\n".$chance."\n".$sub."\n\n".$info, "buttons" => $buttons];
+     return ["type" => "form", "title" => $custom ? LanguageService::text($lang, "ui.detail_form_title")."§0".$rarity : LanguageService::text($lang, "ui.detail_form_title"), "content" => $reward->getColor().$reward->getName()."\n".$chance."\n".$sub."\n\n".$info, "buttons" => $buttons];
     }
 
     public static function configureUi(array &$ui, RewardManager $manager):void{

@@ -28,6 +28,7 @@ final class CheckConsole extends ConsoleCommandSender{
 $eng = json_decode(file_get_contents($root."/resources/languages/eng.json"), true, 512, JSON_THROW_ON_ERROR);
 $ind = json_decode(file_get_contents($root."/resources/languages/ind.json"), true, 512, JSON_THROW_ON_ERROR);
 check(array_keys($eng["messages"]) === array_keys($ind["messages"]), "Language catalogs have different message keys");
+check(!str_contains(json_encode($ind, JSON_UNESCAPED_UNICODE | JSON_THROW_ON_ERROR), "Kunci Jiwa"), "Soul Keys must retain its English name throughout Indonesian messages");
 foreach($eng["messages"] as $key => $text){
  preg_match_all('/§[a-z0-9]/u', $text, $left);
  preg_match_all('/§[a-z0-9]/u', $ind["messages"][$key], $right);
@@ -65,13 +66,13 @@ check(str_contains(end($p->messages), "Anda dapat menghubungi"), "Plugin info wa
 check($pl->souls->getAll() === $keysBefore && $pl->getConfig()->getAll() === $configBefore, "Language changes modified keys or the loot configuration");
 $confirmInd = ConfirmMenu::create($pl, $p);
 check(str_starts_with($confirmInd["title"], "§e§lKonfirmasi Soul Well§r§r") && str_contains($confirmInd["title"], "Halo, SoulWellTest!"), "Indonesian confirmation marker/greeting missing");
-check($confirmInd["buttons"][2]["text"] === "§f5x Putar §6(50 Kunci Jiwa)" && $confirmInd["buttons"][3]["text"] === "§e§lDAFTAR HADIAH", "Indonesian confirmation labels or costs are incorrect");
+check($confirmInd["buttons"][2]["text"] === "§f5x Putar §6(50 Soul Keys)" && $confirmInd["buttons"][3]["text"] === "§e§lDAFTAR HADIAH", "Indonesian confirmation labels or costs are incorrect");
 $vanilla = (new ReflectionClass(\ZulfahmiFjr\SoulWell\Main::class))->newInstanceWithoutConstructor();
 field($vanilla, \pocketmine\plugin\PluginBase::class, "config", $pl->getConfig());
 $vanilla->souls = $pl->souls;
 $vanilla->languages = $pl->languages;
 $nativeForm = ConfirmMenu::create($vanilla, $p);
-check(str_contains($nativeForm["content"], "Anda harus memiliki setidaknya 10 Kunci Jiwa") && str_contains($nativeForm["content"], "Kunci Jiwa Anda sekarang"), "Configured vanilla confirmation text was not translated");
+check(str_contains($nativeForm["content"], "Anda harus memiliki setidaknya 10 Soul Keys") && str_contains($nativeForm["content"], "Soul Keys Anda sekarang"), "Configured vanilla confirmation text was not translated");
 check($nativeForm["title"] === "§e§lKonfirmasi Soul Well" && end($nativeForm["buttons"])["text"] === "§lBatalkan Pembukaan", "Vanilla confirmation title or cancel button was not translated");
 $manager = new RewardManager($defaults);
 foreach(Reward::COLORS as $rarity => $color){
@@ -81,32 +82,34 @@ foreach(Reward::COLORS as $rarity => $color){
   $detail = PrizeMenu::details($manager, $entry["index"], true, "ind");
   check(str_contains($detail["buttons"][3]["text"], PrizeMenu::percent($entry["chance"])), "Localization changed the actual prize chance");
   check($detail["buttons"][1]["image"]["data"] === $entry["icon"], "Localization changed the prize icon");
+  $english = PrizeMenu::details($manager, $entry["index"], true, "eng");
+  check($detail["buttons"][1]["text"] === $english["buttons"][1]["text"] && $detail["buttons"][4]["text"] === $english["buttons"][4]["text"], "Selected language changed the item name, type, enchantments or lore");
   $canonical = $entry["reward"]->getItem();
-  $localized = $entry["reward"]->getItem("ind");
-  check($localized->getTypeId() === $canonical->getTypeId() && $localized->getCount() === $canonical->getCount() && $localized->getEnchantments() === $canonical->getEnchantments(), "Localization changed the actual item or enchants");
+  $localized = $entry["reward"]->getItem();
+  check($localized->equalsExact($canonical), "Language selection changed the complete item metadata");
   $localized->setCount(99)->setCustomName("changed");
-  check($entry["reward"]->getItem("ind")->getCount() === $canonical->getCount() && $entry["reward"]->getItem()->equalsExact($canonical), "Localized item cache mutated canonical rewards");
+  check($entry["reward"]->getItem()->getCount() === $canonical->getCount() && $entry["reward"]->getItem()->equalsExact($canonical), "Reward clone mutated canonical item metadata");
  }
 }
 $first = $manager->getCatalog("legendary")[0];
 $detailInd = PrizeMenu::details($manager, $first["index"], true, "ind");
-check(str_contains($detailInd["buttons"][1]["text"], "TARING NAUTILUS") && str_contains($detailInd["buttons"][4]["text"], "Ketajaman V"), "Default reward name or enchant translation missing");
-check(str_contains($detailInd["buttons"][4]["text"], "Pedang legendaris Nautic Craft"), "Default reward lore translation missing");
+check(str_contains($detailInd["buttons"][1]["text"], "NAUTILUS FANG") && str_contains($detailInd["buttons"][4]["text"], "Sharpness V"), "Reward names and enchantments must remain English");
+check(str_contains($detailInd["buttons"][4]["text"], "The legendary blade of Nautic Craft"), "Reward lore must remain English");
 check(PrizeMenu::listing($manager, "legendary", "ind", false)["title"] === "§e§lDaftar Hadiah SoulWell§r§r", "Vanilla list title was not translated");
 check(PrizeMenu::details($manager, $first["index"], false, "ind")["title"] === "§e§lRincian Hadiah SoulWell§r§r", "Vanilla detail title was not translated");
 $menus = new MenuService($pl);
 $menus->listing($p, "legendary");
 end($p->shownForms)->handleResponse($p, 5);
 $pl->getScheduler()->mainThreadHeartbeat(1);
-check(str_contains(end($p->shownForms)->jsonSerialize()["buttons"][1]["text"], "TARING NAUTILUS"), "Prize navigation lost the player language");
+check(str_contains(end($p->shownForms)->jsonSerialize()["buttons"][1]["text"], "NAUTILUS FANG"), "Prize navigation lost the player language");
 $englishPlayer = new CheckPlayer("Bread");
 $server->recipients = [$p, $englishPlayer];
 $pl->rewardService->give($p, [$first["reward"]]);
-check(str_contains(end($p->messages), "baru saja menemukan") && str_contains(end($p->messages), "Legendaris Taring Nautilus"), "Indonesian subscriber received an English broadcast");
+check(str_contains(end($p->messages), "baru saja menemukan") && str_contains(end($p->messages), "Legendaris Nautilus Fang"), "Indonesian subscriber received an English broadcast");
 check(str_contains(end($englishPlayer->messages), "just found") && str_contains(end($englishPlayer->messages), "Legendary Nautilus Fang"), "English subscriber received an Indonesian broadcast");
-check($p->titles[0][0] === "§6§lLEGENDARIS!" && $p->titles[0][1] === "§r§fTaring Nautilus", "Celebration title/subtitle not localized");
+check($p->titles[0][0] === "§6§lLEGENDARIS!" && $p->titles[0][1] === "§r§fNautilus Fang", "Celebration title/subtitle not localized");
 check(LanguageService::literal("ind", "High Powerful Diamondfish") === "High Powerful Diamondfish", "Literal translation corrupted partial words");
-check(LanguageService::literal("ind", "§6§lNautilus Fang§r") === "§6§lTaring Nautilus§r", "Literal translation lost custom item colors");
+check(LanguageService::literal("ind", "§6§lNautilus Fang§r") === "§6§lNautilus Fang§r", "Literal translation must preserve item names and colors");
 check(LanguageService::text("ind", "ui.greeting", ["{PLAYER}" => "Bread"]) === "§fHalo, Bread!", "Player name was translated as an item literal");
 check($pl->onCommand($p, $command, "sw", ["lang", "eng"]) && $pl->lang($p) === "eng", "Switching back to English failed");
 check(ConfirmMenu::create($pl, $p)["buttons"][0]["text"] === "§f1x Roll §6(10 Soul Keys)", "English UI was not restored");
@@ -127,4 +130,4 @@ if(isset($argv[2])){
  $preview["ind"] = ["confirm" => ConfirmMenu::create($pl, $p), "list" => PrizeMenu::listing($manager, "legendary", "ind"), "detail" => $detailInd];
  file_put_contents($argv[2], json_encode($preview, JSON_UNESCAPED_UNICODE | JSON_THROW_ON_ERROR));
 }
-echo "PASS language persistence and isolation, command validation, format/placeholder parity, localized navigation and prizes, bilingual broadcasts and 1x/3x/5x settlement\n";
+echo "PASS language persistence and isolation, command validation, format/placeholder parity, localized navigation with English currency/item metadata, bilingual broadcasts and 1x/3x/5x settlement\n";
