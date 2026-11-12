@@ -33,6 +33,7 @@ use ZulfahmiFjr\SoulWell\service\RewardConfig;
 use ZulfahmiFjr\SoulWell\service\RewardService;
 use ZulfahmiFjr\SoulWell\service\ResourcePackService;
 use ZulfahmiFjr\SoulWell\service\MenuService;
+use ZulfahmiFjr\SoulWell\service\LanguageService;
 
 class Main extends PluginBase implements Listener{
 
@@ -43,7 +44,25 @@ class Main extends PluginBase implements Listener{
     public $set = array();
     public array $rolls = [];
     public ?MenuService $menus = null;
+    public ?LanguageService $languages = null;
     private ?ResourcePackService $resourcePack = null;
+    private array $floatingTexts = [];
+
+    public function lang(CommandSender $p):string{
+     return $this->languages?->get($p) ?? "eng";
+    }
+
+    public function text(CommandSender $p, string $key, array $values = []):string{
+     return LanguageService::text($this->lang($p), $key, $values);
+    }
+
+    public function refreshFloatingText(Player $p):void{
+     if(!$this->coords instanceof Config || !$this->coords->exists("x") || !$this->coords->exists("y") || !$this->coords->exists("z")) return;
+     $name = strtolower($p->getName());
+     $particle = $this->floatingTexts[$name] ??= new FloatingTextParticle("");
+     $particle->setTitle($this->text($p, "well.floating"));
+     $p->getWorld()->addParticle(new Vector3($this->coords->get("x") + 0.5, $this->coords->get("y") + 2, $this->coords->get("z") + 0.5), $particle, [$p]);
+    }
 
     public function hasCustomUi():bool{
      return $this->resourcePack !== null;
@@ -58,6 +77,7 @@ class Main extends PluginBase implements Listener{
       if($e->getPacketId() === \pocketmine\network\mcpe\protocol\NetworkStackLatencyPacket::NETWORK_ID) $e->uncancel();
      }, EventPriority::NORMAL, $this, true);
      $this->saveResource("config.yml");
+     $this->languages = new LanguageService($this->getDataFolder()."languages.yml");
      $this->souls = new Config($this->getDataFolder().'souls.yml', Config::YAML);
      if($this->getServer()->getPluginManager()->getPlugin("ScoreHud") !== null) $this->getServer()->getPluginManager()->registerEvents(new SoulKeyProvider($this), $this);
      $this->coords = new Config($this->getDataFolder().'coords.yml', Config::YAML);
@@ -97,12 +117,7 @@ class Main extends PluginBase implements Listener{
        $this->souls->set(strtolower($p->getName()), 0);
        $this->souls->save();
       }
-      $data = $this->coords;
-      $x = $data->get("x");
-      $y = $data->get("y");
-      $z = $data->get("z");
-      $text = "§bSoul Well\n§l§eRIGHT CLICK";
-      $p->getWorld()->addParticle(new Vector3($x + 0.5, $y + 2, $z + 0.5), new FloatingTextParticle('', $text), array($p));
+      $this->refreshFloatingText($p);
      }
     }
 
@@ -110,6 +125,7 @@ class Main extends PluginBase implements Listener{
      $name = strtolower($e->getPlayer()->getName());
      if(isset($this->rolls[$name])) $this->rolls[$name]->abort();
      $this->souls->save();
+     unset($this->floatingTexts[$name]);
     }
 
     public function onPlayerInteract(PlayerInteractEvent $e){
@@ -141,13 +157,12 @@ class Main extends PluginBase implements Listener{
        $data->set("y", $y);
        $data->set("z", $z);
        $data->save();
-       $text = "§bSoul Well\n§l§eRIGHT CLICK";
-       $b->getPosition()->getWorld()->addParticle(new Vector3($x + 0.5, $y + 2, $z + 0.5), new FloatingTextParticle('', $text));
+       foreach($this->getServer()->getOnlinePlayers() as $t) $this->refreshFloatingText($t);
        $b->getPosition()->getWorld()->setBlockAt($x, $y + 1, $z, VanillaBlocks::END_PORTAL_FRAME());
-       $p->sendMessage("§f§lSoulWell§r§f: §7§oSoulWell successfully added§r§f.");
+       $p->sendMessage($this->text($p, "well.created"));
        unset($this->set[$p->getName()]);
       }else{
-       $p->sendMessage("§f§lSoulWell§r§f: §7§oSoul Well has been made please delete first§r§f.");
+       $p->sendMessage($this->text($p, "well.exists"));
        unset($this->set[$p->getName()]);
       }
       $e->cancel();
@@ -163,9 +178,9 @@ class Main extends PluginBase implements Listener{
         $data->remove("y");
         $data->remove("z");
         $data->save();
-        $p->sendMessage("§f§lSoulWell§r§f: §7§oSoulWell successfully remove§r§f!");
+        $p->sendMessage($this->text($p, "well.removed"));
        }else{
-        $p->sendMessage("§f§lSoulWell§r§f: §7§oYou have no permission to break SoulWell§r§f!");
+        $p->sendMessage($this->text($p, "well.no_permission"));
         $e->cancel();
        }
       }
@@ -176,12 +191,12 @@ class Main extends PluginBase implements Listener{
      $name = strtolower($p->getName());
      if(!$p->isOnline() || !in_array($rolls, [1, 3, 5], true) || isset($this->rolls[$name])) return;
      if($this->rewards === null || $this->rewardService === null){
-      $p->sendMessage("§f§lSoulWell§r§f: §7§oSoulWell rewards are temporarily unavailable, please report admin§r§f!");
+      $p->sendMessage($this->text($p, "roll.unavailable"));
       return;
      }
      $cost = $rolls * 10;
      if((int) $this->souls->get($name, 0) < $cost){
-      $p->sendMessage("§f§lSoulWell§r§f: §7§oYour Soul Keys amount is still lacking to open SoulWell§r§f!");
+      $p->sendMessage($this->text($p, "roll.insufficient"));
       return;
      }
      $roll = new RollUpdater($this, $p, 100, $rolls);
@@ -205,61 +220,72 @@ class Main extends PluginBase implements Listener{
      $sub = isset($args[0]) ? strtolower($args[0]) : "";
      switch($sub){
       case "":{
-       $msg = "§l§9»» §r§e§oSoulWell Commands§r§f:\n§f- §e§o/sw info§r§f: §7§oDisplay plugin information§r§f";
+       $msg = $this->text($p, "command.help");
        if($this->getServer()->isOp($p->getName()) || !$p instanceof Player){
-        $msg .= "\n§f- §e§o/sw create§r§f: §7§oAdd SoulWell block§r§f\n§f- §e§o/sw key [player-name] [count]§r§f: §7§oAdd Soul Keys to player§r§f";
+        $msg .= $this->text($p, "command.help_admin");
        }
+       if($p instanceof Player) $msg .= $this->text($p, "command.help_lang");
        $p->sendMessage($msg);
        break;
       }
       case "info":{
-       $p->sendMessage("§l§9»» §r§e§oHi this plugin made by ZulfahmiFjr§r§f, §e§oyou can contact me at§r§f:\n§f- §e§oDiscord§r§f: ZulfahmiFjr#8525\n§f- §e§oWhatsapp§r§f: +6287880267100\n§f- §e§oEmail§r§f: 6931856cg@gmail.com\n§e§oPlease take care this plugin§r§f! §e§oThanks§r§f :)");
+       $p->sendMessage($this->text($p, "command.info"));
+       break;
+      }
+      case "lang":{
+       if(!$p instanceof Player){$p->sendMessage($this->text($p, "command.player_only"));return false;}
+       $lang = strtolower($args[1] ?? "");
+       if(count($args) !== 2 || !in_array($lang, ["ind", "eng"], true)){$p->sendMessage($this->text($p, "language.usage"));return false;}
+       if(isset($this->rolls[strtolower($p->getName())])){$p->sendMessage($this->text($p, "language.busy"));return false;}
+       $this->languages->set($p, $lang);
+       $p->sendMessage($this->text($p, "language.changed", ["{LANGUAGE}" => $this->text($p, "language.".$lang)]));
+       $this->refreshFloatingText($p);
        break;
       }
       case "create":{
        if(!$p instanceof Player){
-        $p->sendMessage("§f§lSoulWell§r§f: §7§oPlease use this command in the game§r§f!");
+        $p->sendMessage($this->text($p, "command.player_only"));
         return false;
        }
        if(!$this->getServer()->isOp($p->getName())){
-        $p->sendMessage("§f§lSoulWell§r§f: §7§oYou have no permission to use this command§r§f!");
+        $p->sendMessage($this->text($p, "command.no_permission"));
         return false;
        }
        $this->set[$p->getName()] = true;
-       $p->sendMessage("§f§lSoulWell§r§f: §7§oPlease destroy 1 block§r§f!");
+       $p->sendMessage($this->text($p, "command.create"));
        break;
       }
       case "key":{
        if(!$this->getServer()->isOp($p->getName()) && $p instanceof Player){
-        $p->sendMessage("§f§lSoulWell§r§f: §7§oYou have no permission to use this command§r§f!");
+        $p->sendMessage($this->text($p, "command.no_permission"));
         return false;
        }
        if(!isset($args[1])){
-        $p->sendMessage("§f§lSoulWell§r§f: §7§oPlease use command§r§f: /sw key [player-name]");
+        $p->sendMessage($this->text($p, "command.key_player"));
         return false;
        }
        if(!isset($args[2])){
-        $p->sendMessage("§f§lSoulWell§r§f: §7§oPlease use command§r§f: /sw key [player-name] [count]");
+        $p->sendMessage($this->text($p, "command.key_count"));
         return false;
        }
        if(!is_numeric($args[2]) || (int) $args[2] <= 0){
-        $p->sendMessage("§f§lSoulWell§r§f: §7§oPlease enter the number of soul keys correctly§r§f!");
+        $p->sendMessage($this->text($p, "command.key_invalid"));
         return false;
        }
        $t = $this->getServer()->getPlayerExact($args[1]);
        if($t instanceof Player){
-        $t->sendMessage("§f§lSoulWell§r§f: §7§oYou have sent Soul Keys to the amount§r§f ".$args[2].".");
+        $t->sendMessage($this->text($t, "command.key_received", ["{AMOUNT}" => $args[2]]));
         $name = strtolower($t->getName());
        }else{
         $name = strtolower($args[1]);
        }
        $this->souls->set($name, (int) $this->souls->get($name, 0) + (int) $args[2]);
        $this->souls->save();
-       $p->sendMessage("§f§lSoulWell§r§f: §7§oYou have successfully added §r§f".$name." §7§oSoul Keys to the amount §r§f".$args[2].".");
+       $p->sendMessage($this->text($p, "command.key_added", ["{PLAYER}" => $name, "{AMOUNT}" => $args[2]]));
        break;
       }
       default:{
-       $p->sendMessage("§f§lSoulWell§r§f: §7§oPlease use command§r§f: /sw [info|create|key]");
+       $p->sendMessage($this->text($p, "command.usage"));
        break;
       }
      }

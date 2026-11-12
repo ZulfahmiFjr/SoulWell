@@ -27,8 +27,8 @@ def check_ui(ui):
         original = next((control["original"] for control in controls if "original" in control), {})
         if original.get("type") != "panel" or original.get("visible") is not False or len(original.get("controls", [])) != 1:
             errors.append(profile + " must hide the original inventory through a dedicated wrapper")
-        if len(routed) != 4:
-            errors.append(profile + " must route to one original panel and three roll panels")
+        if len(routed) != 7:
+            errors.append(profile + " must route to one original panel and three roll panels for each language")
         for control in routed:
             properties = control.get("property_bag", {})
             if properties.get("#sw_container_title") != "$container_title":
@@ -46,8 +46,8 @@ def check_ui(ui):
     if buttons.get("type") != "collection_panel" or buttons.get("collection_name") != "form_buttons" or indices != [0, 1, 2, 3]:
         errors.append("confirmation must map three rolls and Prize List through the native form collection")
     routes = ui.get("form_dispatch", {}).get("controls", [])
-    if len(routes) != 10 or "original" not in routes[0]:
-        errors.append("form dispatcher must preserve other forms and route confirmation plus four list/detail pairs")
+    if len(routes) != 19 or "original" not in routes[0]:
+        errors.append("form dispatcher must preserve other forms and route confirmation plus four list/detail pairs in both languages")
     original_form = routes[0].get("original", {}) if routes else {}
     inherited = original_form.get("controls", [])
     if original_form.get("type") != "panel" or original_form.get("visible") is not False or len(inherited) != 1 or not any(key.startswith("content@") for key in inherited[0]):
@@ -105,6 +105,17 @@ def check_ui(ui):
         detail = ui.get("prize_detail_" + rarity, {})
         if detail.get("size") != [300, 166]:
             errors.append(rarity + " detail panel has an unexpected reference size")
+    localized = [control for route in routes[1:] for key, control in route.items() if "_ind@" in key]
+    english = [control for route in routes[1:] for key, control in route.items() if "_ind@" not in key]
+    if len(localized) != 9 or len(english) != 9:
+        errors.append("each form language needs exactly nine routes")
+    for controls, guard in [(english, "and (not (not ((#title_text - '§0§0§r') = #title_text)))"), (localized, "and (not ((#title_text - '§0§0§r') = #title_text))")]:
+        if any(guard not in control.get("bindings", [{}])[-1].get("source_property_name", "") for control in controls):
+            errors.append("English and Indonesian form routes must use opposite language guards")
+    for rarity in ["common", "rare", "epic", "legendary"]:
+        controls = {key: value for control in ui.get("prize_list_" + rarity + "_ind", {}).get("controls", []) for key, value in control.items()}
+        if controls.get("list@common.scrolling_panel", {}).get("$scrolling_content") != "soulwell.prize_grid_" + rarity + "_ind":
+            errors.append(rarity + " Indonesian list must use its own localized grid")
     for text in ["§e§lSoulWell Prize List§r§r", "§e§lSoulWell Prize Detail§r§r"]:
         if text not in json.dumps(routes, ensure_ascii=False):
             errors.append("form routing marker is missing: " + text)

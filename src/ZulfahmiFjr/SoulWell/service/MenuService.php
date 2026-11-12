@@ -29,7 +29,7 @@ final class MenuService{
     public function listing(Player $p, string $rarity):void{
      if(!$p->isOnline() || $this->pl->rewards === null || !isset(Reward::COLORS[$rarity]) || isset($this->pl->rolls[strtolower($p->getName())])) return;
      $entries = $this->pl->rewards->getCatalog($rarity);
-     $p->sendForm(new MenuForm(PrizeMenu::listing($this->pl->rewards, $rarity), function(Player $p, int $choice) use ($rarity, $entries):void{
+     $p->sendForm(new MenuForm(PrizeMenu::listing($this->pl->rewards, $rarity, $this->pl->lang($p), $this->pl->hasCustomUi()), function(Player $p, int $choice) use ($rarity, $entries):void{
       if($choice < 4 && array_keys(Reward::COLORS)[$choice] === $rarity) return;
       $this->later($p, function() use ($p, $choice, $rarity, $entries):void{
        if($choice < 4){$this->listing($p, array_keys(Reward::COLORS)[$choice]);return;}
@@ -41,7 +41,7 @@ final class MenuService{
 
     public function details(Player $p, int $index, string $rarity):void{
      if(!$p->isOnline() || $this->pl->rewards === null || isset($this->pl->rolls[strtolower($p->getName())])) return;
-     $p->sendForm(new MenuForm(PrizeMenu::details($this->pl->rewards, $index, $this->pl->hasCustomUi()), function(Player $p, int $choice) use ($rarity):void{
+     $p->sendForm(new MenuForm(PrizeMenu::details($this->pl->rewards, $index, $this->pl->hasCustomUi(), $this->pl->lang($p)), function(Player $p, int $choice) use ($rarity):void{
       if($choice === 0) $this->later($p, function() use ($p, $rarity):void{$this->listing($p, $rarity);});
      }));
     }

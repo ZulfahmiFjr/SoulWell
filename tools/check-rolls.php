@@ -41,13 +41,23 @@ final class CheckLogger extends SimpleLogger{
 final class CheckServer extends Server{
 
     public array $messages = [];
+    public array $recipients = [];
 
     public function __construct(){
     }
 
     public function broadcastMessage(Translatable|string $message, ?array $recipients = null):int{
      $this->messages[] = $message;
-     return 1;
+     foreach($recipients ?? $this->recipients as $p) $p->sendMessage($message);
+     return count($recipients ?? $this->recipients);
+    }
+
+    public function getBroadcastChannelSubscribers(string $channelId):array{
+     return $this->recipients;
+    }
+
+    public function isOp(string $name):bool{
+     return false;
     }
 }
 
@@ -86,7 +96,7 @@ final class CheckPlayer extends Player{
     public array $titles = [];
     public array $shownForms = [];
 
-    public function __construct(){
+    public function __construct(private string $testName = "SoulWellTest"){
      $this->bag = new PlayerInventory($this);
      $this->testWorld = new CheckWorld();
     }
@@ -99,7 +109,7 @@ final class CheckPlayer extends Player{
     }
 
     public function getName():string{
-     return "SoulWellTest";
+     return $this->testName;
     }
 
     public function getId():int{
@@ -172,7 +182,10 @@ function fixture(array $data, string $path):array{
  $pl->souls->set("soulwelltest", 0);
  $pl->rewards = new RewardManager($data, fn(int $min, int $max):int => $min);
  $pl->rewardService = new RewardService($pl);
- return [$pl, new CheckPlayer(), $server, $logger];
+ $pl->languages = new \ZulfahmiFjr\SoulWell\service\LanguageService($path."-languages.yml");
+ $p = new CheckPlayer();
+ $server->recipients = [$p];
+ return [$pl, $p, $server, $logger];
 }
 
 function rollFixture(Main $pl, CheckPlayer $p, int $count):RollUpdater{

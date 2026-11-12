@@ -12,6 +12,7 @@ use pocketmine\block\utils\DyeColor;
 use ZulfahmiFjr\SoulWell\Main;
 use ZulfahmiFjr\SoulWell\libs\muqsit\invmenu\InvMenu;
 use ZulfahmiFjr\SoulWell\manager\NoteBlockSound;
+use ZulfahmiFjr\SoulWell\service\LanguageService;
 
 class RollUpdater extends Task{
 
@@ -40,7 +41,7 @@ class RollUpdater extends Task{
      $this->rolls = $rolls;
      $this->columns = $rolls === 5 ? [0, 2, 4, 6, 8] : ($rolls === 3 ? [2, 4, 6] : [4]);
      $menu = InvMenu::create(InvMenu::TYPE_DOUBLE_CHEST);
-     $menu->setName("§l§fSoul Well (".$rolls."x Roll)");
+     $menu->setName($pl->text($p, "ui.inventory_title", ["{ROLLS}" => (string) $rolls]).LanguageService::marker($pl->lang($p)));
      $menu->setListener(InvMenu::readonly());
      $menu->setInventoryCloseListener(function(Player $p):void{
       $this->closeInventory($p);
@@ -125,7 +126,7 @@ class RollUpdater extends Task{
       $p->getWorld()->addSound($p->getPosition(), new NoteBlockSound($note), [$p]);
       foreach($this->columns as $c){
        $reward = $this->stepIndex === count(self::DELAYS) - 4 ? $this->predictions[$c] : $this->pl->rewards->draw();
-       $item = $reward->getItem();
+       $item = $reward->getItem($this->pl->lang($p));
        $wellInventory->setItem($c + 45, $wellInventory->getItem($c + 36));
        $wellInventory->setItem($c + 36, $wellInventory->getItem($c + 27));
        $wellInventory->setItem($c + 27, $wellInventory->getItem($c + 18));
@@ -170,7 +171,7 @@ class RollUpdater extends Task{
      $network?->dropPending();
      if($this->p->isOnline()){
       if($this->p->getCurrentWindow() === $this->wellMenu) $this->p->removeCurrentWindow();
-      $this->p->sendMessage("§f§lSoulWell§r§f: §7§oSoulWell roll was cancelled, your Soul Keys have been returned§r§f!");
+      $this->p->sendMessage($this->pl->text($this->p, "roll.cancelled"));
      }
      $this->pl->getLogger()->warning("SoulWell roll cancelled for ".$name.", refunded ".($this->rolls * 10)." Soul Keys");
     }

@@ -2,7 +2,7 @@
 
 <p align="center">
   <b>Lucky Draw Plugin inspired by Hypixel's Soul Well</b><br>
-  <i>Development Version: <b>v1.9.12</b> | Supports PMMP API 5.27.0+</i>
+  <i>Development Version: <b>v1.10.0</b> | Supports PMMP API 5.27.0+</i>
 </p>
 
 
@@ -24,6 +24,7 @@ Compatible with **PocketMine-MP API 5.0.0 - 5.27.0+**
 - **Anti-Loss & Auto-Refund**: Comprehensive session protection that automatically refunds Soul Keys if a roll is interrupted, window-closed, or disconnected before starting.
 - **Mobile-Friendly & Case-Insensitive**: Supports `/sw`, `/soulwell`, `/SoulWell`, and `/SOULWELL` without unknown command errors on mobile keyboards.
 - **Unified Command System**: Simplified `/sw` hub command (`/sw create`, `/sw key`, `/sw info`).
+- **Per-Player Language**: Switch between English and formal Indonesian with `/sw lang eng` or `/sw lang ind`. The choice persists across reconnects and restarts, and covers chat, custom and vanilla forms, roll screens, prize descriptions, floating text, and celebrations. Broadcasts use each recipient's selected language.
 - **Soul Keys Currency**: Configurable per-player key balance stored securely.
 - **Customizable Loot Table**: Add custom items, amounts, custom names, lore, and enchantments in `config.yml`.
 - **Reward Rarities**: Common, Rare, Epic, and Legendary rewards have configurable tier percentages and relative item weights. Rarity colors appear in item lore and reward messages.
@@ -36,7 +37,7 @@ Compatible with **PocketMine-MP API 5.0.0 - 5.27.0+**
 - **SoulWell-Only Inventory Design**: Dedicated vertical 1x, 3x, and 5x reward reels use actual container items and stack counts. Regular chests and unrelated forms keep their existing layouts.
 - **Resource Pack Compatibility**: The pack is rebuilt automatically on startup, preserving the existing form dispatcher and shared UI definitions from other server packs.
 
-The `dev` branch contains v1.9.12, refining text alignment in the Pets Sanctuary palette. The Prize List label is centered beside its gift icon, the confirmation footer and prize card text are vertically centered, the 1x, 3x, and 5x labels are vertically centered in their buttons, and Back has a visible button background with the same bottom inset as Back to Prize List. Compact rarity tabs keep their bold labels vertically centered and highlight the current category with a bright border and underline; the active tab cannot be selected again. The rarity chance and details hint sit closer together, and the prize scrolling area is raised to leave more space above Back. A taller, dark recessed background gives the two prize rows equal top and bottom padding. The gaps from this area to the details hint above and Back below are also equal. Weighted rarities and win celebrations retain their existing behavior. The confirmation menu groups all three roll buttons on a fixed dark inset, with balanced greeting/Soul Keys spacing and a Prize List button centered between the roll panel and footer separator. The bordered footer and stone-gray, sage, green, and gold styling match the browser. The interface retains login pack priority and marker-based container routing. A separate visibility wrapper keeps existing server form dispatchers hidden while SoulWell is open, and close buttons are inset within every SoulWell panel header. Both classic and data-driven container screens recognize SoulWell roll menus. The published download above remains v1.6.5 until a new release is published. Reconnect to the server after the UI pack update to download version 1.9.12.
+The `dev` branch contains v1.10.0, adding English and formal Indonesian language selection while retaining the Pets Sanctuary interface. The Prize List label is centered beside its gift icon, the confirmation footer and prize card text are vertically centered, the 1x, 3x, and 5x labels are vertically centered in their buttons, and Back has a visible button background with the same bottom inset as Back to Prize List. Compact rarity tabs keep their bold labels vertically centered and highlight the current category with a bright border and underline; the active tab cannot be selected again. The rarity chance and details hint sit closer together, and the prize scrolling area is raised to leave more space above Back. A taller, dark recessed background gives the two prize rows equal top and bottom padding. The gaps from this area to the details hint above and Back below are also equal. Weighted rarities and win celebrations retain their existing behavior. The confirmation menu groups all three roll buttons on a fixed dark inset, with balanced greeting/Soul Keys spacing and a Prize List button centered between the roll panel and footer separator. The bordered footer and stone-gray, sage, green, and gold styling match the browser. The interface retains login pack priority and marker-based container routing. A separate visibility wrapper keeps existing server form dispatchers hidden while SoulWell is open, and close buttons are inset within every SoulWell panel header. Both classic and data-driven container screens recognize SoulWell roll menus. The published download above remains v1.6.5 until a new release is published. Reconnect to the server after the UI pack update to download version 1.10.0.
 
 ---
 
@@ -91,8 +92,15 @@ Check out SoulWell in action on YouTube:
 4. Watch the animated roulette spin down smoothly and claim your random loot!
 5. Admins can give Soul Keys to players anytime using `/sw key [player-name] [count]`.
 6. Select **Prize List** to browse rewards without spending keys. Switch rarity tabs, then select an item to open its details. **Back to Prize List** returns to the selected rarity, and **Back** returns to the roll menu.
+7. Use `/sw lang ind` for Indonesian or `/sw lang eng` for English. English is the initial language. Preferences are saved in `plugin_data/SoulWell/languages.yml`; switching language requires no reconnect after downloading the updated pack. Finish an active roll before changing language.
 
 ---
+
+## Languages
+
+Both language catalogs are bundled under `resources/languages/`. Colors, prefixes, suffixes, player names, item quantities, enchantment levels, and drop chances are preserved. SoulWell and Nautic Craft remain product names. Configured reward names and lore matching the supplied catalog are translated for the viewer; unrecognized custom text remains unchanged. Item type IDs and the loot configuration are never translated or rewritten.
+
+Servers with custom confirmation or announcement wording may add `message-ind` alongside `message`, or `celebration.message-ind` alongside `celebration.message`, to provide an exact Indonesian template. Use the same placeholders and formatting codes as the English template. Existing settings are retained. Awarded items keep the display language used when they were received.
 
 ## Reward Rarities & Configuration
 

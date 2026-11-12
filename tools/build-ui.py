@@ -1,4 +1,5 @@
 import json
+from copy import deepcopy
 import struct
 import zlib
 from pathlib import Path
@@ -240,6 +241,47 @@ def prize_controls(ui):
         dispatch.append({"detail_" + rarity + "@soulwell.prize_detail_" + rarity: {"visible": False, "bindings": gate("(" + is_detail + " and " + contains("§0" + rarity) + ")")}})
     ui["form_dispatch"] = {"type": "panel", "size": [0, 0], "controls": dispatch}
 
+def localized_controls(ui):
+    text = json.loads((ROOT.parents[1] / "resources" / "languages" / "ind.json").read_text())["messages"]
+    ui["prize_list_button_state_ind"] = deepcopy(ui["prize_list_button_state"])
+    ui["prize_list_button_state_ind"]["controls"][1]["text"]["font_scale_factor"] = 0.8
+    ui["confirmation_ind"] = deepcopy(ui["confirmation"])
+    confirm = {key: value for control in ui["confirmation_ind"]["controls"] for key, value in control.items()}
+    confirm["footer"]["text"] = text["ui.footer"]
+    confirm["greeting"]["size"][0] = 116
+    confirm["balance"]["size"][0] = 100
+    confirm["balance"]["offset"][0] = 130
+    gift = confirm["buttons"]["controls"][3]["prizes@soulwell.prize_button"]
+    gift["controls"] = [{key + "_ind" if key.endswith("@soulwell.prize_list_button_state") else key: value for key, value in control.items()} for control in gift["controls"]]
+    ui["prize_empty_ind"] = deepcopy(ui["prize_empty"])
+    ui["prize_empty_ind"]["text"] = text["ui.empty"]
+    for rarity in ["common", "rare", "epic", "legendary"]:
+        ui["prize_grid_" + rarity + "_ind"] = deepcopy(ui["prize_grid_" + rarity])
+        for kind, heading in [("list", "ui.prize_heading"), ("detail", "ui.details_heading")]:
+            original = "prize_" + kind + "_" + rarity
+            ui[original + "_ind"] = deepcopy(ui[original])
+            controls = {key: value for control in ui[original + "_ind"]["controls"] for key, value in control.items()}
+            controls["title"]["text"] = text[heading]
+            if kind == "list":
+                controls["hint"]["text"] = text["ui.tap"]
+                controls["list@common.scrolling_panel"]["$scrolling_content"] += "_ind"
+    ui["roll_panel_ind"] = deepcopy(ui["roll_panel"])
+    controls = {key: value for control in ui["roll_panel_ind"]["controls"][2]["root@common.root_panel"]["controls"] for key, value in control.items()}
+    controls["status"]["text"] = text["ui.rolling"]
+    controls["hint"]["text"] = text["ui.roll_hint"]
+    controls["hint"]["font_scale_factor"] = 0.65
+    contains = lambda marker: "(not ((#title_text - '" + marker + "') = #title_text))"
+    ind = contains("§0§0§r")
+    routes = ui["form_dispatch"]["controls"]
+    localized = []
+    for route in routes[1:]:
+        key, value = next(iter(route.items()))
+        expression = value["bindings"][-1]["source_property_name"]
+        value["bindings"][-1]["source_property_name"] = "(" + expression + " and (not " + ind + "))"
+        name, reference = key.split("@", 1)
+        localized.append({name + "_ind@" + reference + "_ind": {"visible": False, "bindings": gate("(" + expression + " and " + ind + ")")}})
+    routes.extend(localized)
+
 def controls():
     is_soulwell = "(not ((#title_text - '§e§lSoul Well Confirm§r') = #title_text))"
     ui = {"namespace": "soulwell"}
@@ -269,6 +311,7 @@ def controls():
         ui["reels_" + str(count)] = {"type": "panel", "size": [256, 168], "visible": "($sw_rolls = " + str(count) + ")", "controls": reel}
     ui["roll_panel"] = {"type": "panel", "controls": [{"container_gamepad_helpers@common.container_gamepad_helpers": {}}, {"selected_item_details_factory@common.selected_item_details_factory": {"control_name": "@chest.selected_item_details"}}, {"root@common.root_panel": {"size": [256, 168], "layer": 1, "controls": [{"frame@soulwell.frame": {}}, {"title": label("$sw_roll_title", (210, 12), (21, 7), color=[1, 0.86, 0.43], text_alignment="center")}, {"status": label("Rolling...", (238, 10), (9, 23), shadow=False, text_alignment="center")}, {"hint": label("Each highlighted slot reveals one reward", (238, 8), (9, 33), shadow=False, font_scale_factor=0.75, text_alignment="center", color=[0.72, 0.81, 0.84])}, {"reels_1@soulwell.reels_1": {}}, {"reels_3@soulwell.reels_3": {}}, {"reels_5@soulwell.reels_5": {}}, {"close@soulwell.close": {}}, {"gamepad_cursor@common.gamepad_cursor_button": {}}]}}]}
     prize_controls(ui)
+    localized_controls(ui)
     write_json(ROOT / "ui" / "soulwell_ui.json", ui)
     contains = lambda text: "(not ((#sw_container_title - '" + text + "') = #sw_container_title))"
     def title_binding(expression):
@@ -277,7 +320,8 @@ def controls():
         original = {"type": "panel", "visible": False, **title_binding("((#sw_container_title - '§l§fSoul Well (') = #sw_container_title)"), "controls": [{"inventory@" + fallback: {}}]}
         children = [{"original": original}]
         for count in [1, 3, 5]:
-            children.append({"roll_" + str(count) + "@soulwell.roll_panel": {"$sw_rolls": count, "$sw_roll_title": "§lSOUL WELL §r§6§l" + str(count) + "x ROLL", "visible": False, **title_binding("(" + contains("Soul Well") + " and " + contains("(" + str(count) + "x Roll)") + ")")}})
+            for suffix, word in [("", "Roll"), ("_ind", "Putar")]:
+                children.append({"roll_" + str(count) + suffix + "@soulwell.roll_panel" + suffix: {"$sw_rolls": count, "$sw_roll_title": "§lSOUL WELL §r§6§l" + str(count) + "x " + word.upper(), "visible": False, **title_binding("(" + contains("Soul Well") + " and " + contains("(" + str(count) + "x " + word + ")") + ")")}})
         ui[name + "_dispatch"] = {"type": "panel", "controls": children}
     write_json(ROOT / "ui" / "soulwell_ui.json", ui)
     for namespace, key, filename, prefix in [("chest", "large_chest_screen@common.inventory_screen_common", "chest_screen.json", "classic"), ("data_driven_container", "screen@common.inventory_screen_common", "data_driven_container_screen.json", "data")]:
