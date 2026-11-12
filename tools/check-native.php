@@ -34,15 +34,41 @@ foreach([1, 3, 5] as $count){
  }
  [$pl, $p] = fixture($defaults, $temp."/timing-".$count);
  $roll = rollFixture($pl, $p, $count);
+ $chest = $p->window;
+ $lastFrameTick = array_sum(array_slice($delays, 0, -1));
+ $finalFrame = [];
  $soundTicks = [];
  for($tick = 0; $tick < 500 && isset($pl->rolls["soulwelltest"]); $tick++){
   $previous = count($p->testWorld->sounds);
   $roll->onRun();
+  if($tick === $lastFrameTick) $finalFrame = $chest->getContents();
+  if($tick > $lastFrameTick && $tick < $lastFrameTick + 30){
+   check($p->window === $chest && count($chest->getContents()) === $count * 6, "Reels disappeared during the final-result hold");
+   foreach($finalFrame as $slot => $item) check($chest->getItem($slot)->equalsExact($item), "Final reels changed before the hold ended");
+  }
+  if($tick >= $lastFrameTick + 30 && $tick < $lastFrameTick + 45){
+   check($p->window === $chest && count($chest->getContents()) === $count && $p->bag->getContents() === [], "Selection was not isolated before closing the panel");
+   foreach($chest->getContents() as $slot => $item) check(intdiv($slot, 9) === 3 && $item->equalsExact($finalFrame[$slot]), "Result pause changed a winning item");
+  }
   if(count($p->testWorld->sounds) > $previous && end($p->testWorld->sounds) instanceof \ZulfahmiFjr\SoulWell\manager\NoteBlockSound) $soundTicks[] = $tick;
  }
  $expected = [0];
  foreach(array_slice($delays, 0, -1) as $delay) $expected[] = end($expected) + $delay;
- check($soundTicks === $expected && $tick === array_sum(array_slice($delays, 0, -1)) + 17, "Native updater changed tick cadence or finish pause");
+ check($soundTicks === $expected && $tick === $lastFrameTick + 46 && $p->window === null, "Roll must hold all reels for 30 ticks and show winners alone for 15 ticks before closing");
+}
+foreach([10, 35] as $pause){
+ foreach(["close", "disconnect", "shutdown"] as $case){
+  [$pl, $p, $server, $logger] = fixture($legendary, $temp."/result-pause-".$pause."-".$case);
+  $roll = rollFixture($pl, $p, 3);
+  for($tick = 0; $tick <= array_sum(array_slice($delays, 0, -1)) + $pause; $tick++) $roll->onRun();
+  if($case === "close") $roll->closeInventory($p);
+  elseif($case === "shutdown") $pl->onDisable();
+  else{$p->online = false;$roll->onRun();}
+  $roll->abort();
+  if($case === "close") check(count($p->bag->getContents()) === 3 && count($server->messages) === 3 && $pl->souls->get("soulwelltest") === 0, "Closing during a result pause must settle once");
+  else check($p->bag->getContents() === [] && $server->messages === [] && $pl->souls->get("soulwelltest") === 30, "Interruption during a result pause must refund once");
+  check($logger->errors === [] && !isset($pl->rolls["soulwelltest"]), "Result pause left a broken roll session");
+ }
 }
 foreach([[9999, 0, 0, 0, 1, 0, 1], [10000, 0, 0, 0, 1, 4, 1], [10000, 0, 0, 0, 1, 1, 1]] as $bad){
  try{
@@ -63,4 +89,4 @@ try{
 }finally{
  $backend->setValue(null, $ffi);
 }
-echo "PASS Rust FFI frame/tick parity, minimal slot changes, vanilla fillers, immutable winners and fail-closed key protection\n";
+echo "PASS Rust FFI frame/tick parity, 1.5-second result hold, winner-only pause, interruption safety, minimal slot changes, vanilla fillers and fail-closed key protection\n";

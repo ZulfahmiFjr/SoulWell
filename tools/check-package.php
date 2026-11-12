@@ -9,7 +9,7 @@ spl_autoload_register(function(string $class) use ($archive):void{
  if(str_starts_with($class, $prefix)) require "phar://".$archive."/src/ZulfahmiFjr/SoulWell/".str_replace("\\", "/", substr($class, strlen($prefix))).".php";
 });
 $metadata = yaml_parse(file_get_contents("phar://".$archive."/plugin.yml"));
-if($metadata["version"] !== "1.11.0") throw new RuntimeException("Unexpected PHAR version");
+if($metadata["version"] !== "1.11.1") throw new RuntimeException("Unexpected PHAR version");
 \ZulfahmiFjr\SoulWell\service\NativeRoll::initialize($argv[3] ?? sys_get_temp_dir()."/soulwell-phar-native-check");
 foreach(["phar://".$archive."/resources/config.yml", dirname(__DIR__, 2)."/altay/plugin_data/SoulWell/config.yml"] as $config){
  $manager = new \ZulfahmiFjr\SoulWell\manager\RewardManager(yaml_parse(file_get_contents($config)));

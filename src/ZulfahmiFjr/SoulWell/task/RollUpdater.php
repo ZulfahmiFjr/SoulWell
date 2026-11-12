@@ -30,6 +30,7 @@ class RollUpdater extends Task{
     private int $ready = 0;
     private int $stepIndex = 0;
     private int $stepCooldown = 0;
+    private int $resultCooldown = 30;
     private int $finishCooldown = 15;
 
     public function __construct(Main $pl, Player $p, int $delay = 0, int $rolls = 1){
@@ -107,6 +108,10 @@ class RollUpdater extends Task{
       $this->stepCooldown = $this->plan->delays[$this->stepIndex] - 1;
       $this->stepIndex++;
       return;
+     }
+     if($this->resultCooldown > 0){
+      $this->resultCooldown--;
+      if($this->resultCooldown > 0) return;
      }
      if($this->finishCooldown === 15){
       foreach($this->plan->finished as $slot => $item) $wellInventory->setItem($slot, $item);
