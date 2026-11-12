@@ -2,7 +2,7 @@
 
 <p align="center">
   <b>Lucky Draw Plugin inspired by Hypixel's Soul Well</b><br>
-  <i>Development Version: <b>v1.9.2</b> | Supports PMMP API 5.27.0+</i>
+  <i>Development Version: <b>v1.9.3</b> | Supports PMMP API 5.27.0+</i>
 </p>
 
 
@@ -36,7 +36,7 @@ Compatible with **PocketMine-MP API 5.0.0 - 5.27.0+**
 - **SoulWell-Only Inventory Design**: Dedicated vertical 1x, 3x, and 5x reward reels use actual container items and stack counts. Regular chests and unrelated forms keep their existing layouts.
 - **Resource Pack Compatibility**: The pack is rebuilt automatically on startup, preserving the existing form dispatcher and shared UI definitions from other server packs.
 
-The `dev` branch contains v1.9.2, adding a Prize List and Prize Details interface to the weighted rarities and win celebrations introduced in v1.8.0. The confirmation menu now includes a Prize List button, a bordered footer, and the navy, cyan, and gold styling used throughout the browser. The interface retains login pack priority and marker-based container routing. A separate visibility wrapper keeps existing server form dispatchers hidden while SoulWell is open, and close buttons are inset within every SoulWell panel header. Both classic and data-driven container screens recognize SoulWell roll menus. The published download above remains v1.6.5 until a new release is published. Reconnect to the server after the UI pack update to download version 1.9.2.
+The `dev` branch contains v1.9.3, adding a Prize List and Prize Details interface to the weighted rarities and win celebrations introduced in v1.8.0. The confirmation menu now includes a Prize List button, a bordered footer, and the navy, cyan, and gold styling used throughout the browser. The interface retains login pack priority and marker-based container routing. A separate visibility wrapper keeps existing server form dispatchers hidden while SoulWell is open, and close buttons are inset within every SoulWell panel header. Both classic and data-driven container screens recognize SoulWell roll menus. The published download above remains v1.6.5 until a new release is published. Reconnect to the server after the UI pack update to download version 1.9.3.
 
 ---
 

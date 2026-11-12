@@ -252,7 +252,7 @@ def controls():
         original = {"type": "panel", "visible": False, **title_binding("((#sw_container_title - '§l§fSoul Well (') = #sw_container_title)"), "controls": [{"inventory@" + fallback: {}}]}
         children = [{"original": original}]
         for count in [1, 3, 5]:
-            children.append({"roll_" + str(count) + "@soulwell.roll_panel": {"$sw_rolls": count, "$sw_roll_title": "§lSOUL WELL §r§6• §l" + str(count) + "x ROLL", "visible": False, **title_binding("(" + contains("Soul Well") + " and " + contains("(" + str(count) + "x Roll)") + ")")}})
+            children.append({"roll_" + str(count) + "@soulwell.roll_panel": {"$sw_rolls": count, "$sw_roll_title": "§lSOUL WELL §r§6§l" + str(count) + "x ROLL", "visible": False, **title_binding("(" + contains("Soul Well") + " and " + contains("(" + str(count) + "x Roll)") + ")")}})
         ui[name + "_dispatch"] = {"type": "panel", "controls": children}
     write_json(ROOT / "ui" / "soulwell_ui.json", ui)
     for namespace, key, filename, prefix in [("chest", "large_chest_screen@common.inventory_screen_common", "chest_screen.json", "classic"), ("data_driven_container", "screen@common.inventory_screen_common", "data_driven_container_screen.json", "data")]:

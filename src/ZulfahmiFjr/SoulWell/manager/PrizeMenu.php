@@ -19,12 +19,12 @@ final class PrizeMenu{
     public static function listing(RewardManager $manager, string $rarity):array{
      $buttons = [];
      foreach(Reward::COLORS as $key => $color) $buttons[] = ["text" => $color.($key === $rarity ? "§l" : "").strtoupper($key)];
-     $buttons[] = ["text" => "§f← Back"];
+     $buttons[] = ["text" => "§fBack"];
      foreach($manager->getCatalog($rarity) as $entry){
       $reward = $entry["reward"];
       $buttons[] = ["text" => "§f".mb_strimwidth($reward->getName(), 0, 20, "...", "UTF-8")."\n§7x".$reward->getItem()->getCount()."\n".$reward->getColor()."§l".strtoupper($rarity), "image" => ["type" => "path", "data" => $entry["icon"]]];
      }
-     $text = Reward::COLORS[$rarity].ucfirst($rarity)." • ".self::percent($manager->getRarityChance($rarity))." rarity chance";
+     $text = Reward::COLORS[$rarity].ucfirst($rarity)." rarity chance: ".self::percent($manager->getRarityChance($rarity));
      return ["type" => "form", "title" => self::LIST_TITLE."§0".$rarity, "content" => $text, "buttons" => $buttons];
     }
 
@@ -40,10 +40,10 @@ final class PrizeMenu{
      $info = ($name !== strtoupper($reward->getName()) ? "§f".$reward->getName()."\n" : "")."§7".$entry["type"]."\n";
      foreach($entry["enchantments"] as $enchant) $info .= "§d".$enchant."\n";
      if($entry["lore"] !== []) $info .= "\n§7§o".implode("\n§7§o", array_map(fn(string $line):string => TextFormat::clean($line), $entry["lore"]));
-     $buttons = [["text" => "§f← Back to Prize List"]];
+     $buttons = [["text" => "§fBack to Prize List"]];
      if($custom){
       $buttons[] = ["text" => $reward->getColor()."§l".$name, "image" => ["type" => "path", "data" => $entry["icon"]]];
-      $buttons[] = ["text" => $reward->getColor()."§l".strtoupper($rarity)." §r§7• x".$reward->getItem()->getCount()];
+      $buttons[] = ["text" => $reward->getColor()."§l".strtoupper($rarity)." §r§7x".$reward->getItem()->getCount()];
       $buttons[] = ["text" => $chance];
       $buttons[] = ["text" => $info];
       $buttons[] = ["text" => $sub];
