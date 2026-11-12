@@ -30,6 +30,7 @@ final class MenuService{
      if(!$p->isOnline() || $this->pl->rewards === null || !isset(Reward::COLORS[$rarity]) || isset($this->pl->rolls[strtolower($p->getName())])) return;
      $entries = $this->pl->rewards->getCatalog($rarity);
      $p->sendForm(new MenuForm(PrizeMenu::listing($this->pl->rewards, $rarity), function(Player $p, int $choice) use ($rarity, $entries):void{
+      if($choice < 4 && array_keys(Reward::COLORS)[$choice] === $rarity) return;
       $this->later($p, function() use ($p, $choice, $rarity, $entries):void{
        if($choice < 4){$this->listing($p, array_keys(Reward::COLORS)[$choice]);return;}
        if($choice === 4){$this->confirmation($p);return;}

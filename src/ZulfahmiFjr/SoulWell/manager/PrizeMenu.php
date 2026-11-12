@@ -18,7 +18,7 @@ final class PrizeMenu{
 
     public static function listing(RewardManager $manager, string $rarity):array{
      $buttons = [];
-     foreach(Reward::COLORS as $key => $color) $buttons[] = ["text" => $color.($key === $rarity ? "§l" : "").strtoupper($key)];
+     foreach(Reward::COLORS as $key => $color) $buttons[] = ["text" => $color."§l".strtoupper($key)];
      $buttons[] = ["text" => "§fBack"];
      foreach($manager->getCatalog($rarity) as $entry){
       $reward = $entry["reward"];

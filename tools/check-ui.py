@@ -74,6 +74,10 @@ def check_ui(ui):
         left = width - close_width + close_x
         if left < 5 or left + close_width > width - 5 or close_y + close_height > height - 5:
             errors.append("close button leaves the panel border at " + str((width, height)))
+    tab = ui.get("prize_tab@common.button", {})
+    locked = next((value for control in tab.get("controls", []) for key, value in control.items() if key == "locked@soulwell.prize_tab_state"), {})
+    if tab.get("locked_control") != "locked" or locked.get("$sw_tab_texture") != "$sw_tab_active":
+        errors.append("disabled rarity tabs must retain their selected artwork through a locked control")
     for rarity in ["common", "rare", "epic", "legendary"]:
         grid = ui.get("prize_grid_" + rarity, {})
         if grid.get("type") != "collection_panel" or grid.get("collection_name") != "form_buttons":
@@ -90,6 +94,11 @@ def check_ui(ui):
         actions = [value.get("collection_index") for control in tabs.get("controls", []) for value in control.values()]
         if actions != [0, 1, 2, 3, 4]:
             errors.append(rarity + " must expose four tabs and a Back action")
+        for i, control in enumerate(tabs.get("controls", [])[:4]):
+            key, value = next(iter(control.items()))
+            current = key == "tab_" + rarity + "@soulwell.prize_tab"
+            if value.get("enabled") is not (not current) or value.get("$focus_enabled") is not (not current):
+                errors.append(rarity + " must disable clicks and focus only on its current tab")
         scrolling = controls.get("list@common.scrolling_panel", {})
         if scrolling.get("$scrolling_content") != "soulwell.prize_grid_" + rarity:
             errors.append(rarity + " scrolling area points to the wrong prize grid")

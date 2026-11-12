@@ -73,6 +73,16 @@ end($p->shownForms)->handleResponse($p, 4);
 $pl->getScheduler()->mainThreadHeartbeat(5);
 check(str_contains(end($p->shownForms)->jsonSerialize()["title"], ConfirmMenu::TITLE), "Back from list must return to confirmation");
 check($pl->souls->getAll() === $keysBefore && $p->bag->getContents() === [] && $pl->requestedRolls === [], "Browsing prizes must never charge keys or award items");
+foreach(array_keys(Reward::COLORS) as $choice => $rarity){
+ [$tabMain, $tabPlayer] = fixture($defaults, $temp."/active-tab-".$rarity);
+ (new MenuService($tabMain))->listing($tabPlayer, $rarity);
+ $current = end($tabPlayer->shownForms);
+ $before = count($tabPlayer->shownForms);
+ $current->handleResponse($tabPlayer, $choice);
+ $tabMain->getScheduler()->mainThreadHeartbeat(1);
+ check(count($tabPlayer->shownForms) === $before, "Selecting the active rarity must not reopen the list");
+ check($tabMain->requestedRolls === [] && $tabPlayer->bag->getContents() === [], "Active-tab selection must not start a roll or award items");
+}
 foreach([0 => 1, 1 => 3, 2 => 5] as $choice => $expected){
  $menus->confirmation($p);
  $form = end($p->shownForms);
@@ -100,4 +110,4 @@ if(isset($argv[2])){
  [$previewMain, $previewPlayer] = fixture($defaults, $temp."/prize-preview");
  file_put_contents($argv[2], json_encode(["ui" => $ui, "confirm" => ConfirmMenu::create($previewMain, $previewPlayer), "list" => PrizeMenu::listing($manager, "legendary"), "detail" => PrizeMenu::details($manager, $legend[0]["index"])], JSON_UNESCAPED_UNICODE | JSON_THROW_ON_ERROR));
 }
-echo "PASS config-derived prize chances and details, two-column grids, rarity navigation, read-only browsing, roll routing and replay validation\n";
+echo "PASS config-derived prize chances and details, two-column grids, rarity navigation, active-tab suppression, read-only browsing, roll routing and replay validation\n";
