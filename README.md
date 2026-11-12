@@ -2,7 +2,7 @@
 
 <p align="center">
   <b>Lucky Draw Plugin inspired by Hypixel's Soul Well</b><br>
-  <i>Development Version: <b>v1.9.4</b> | Supports PMMP API 5.27.0+</i>
+  <i>Development Version: <b>v1.9.5</b> | Supports PMMP API 5.27.0+</i>
 </p>
 
 
@@ -32,11 +32,11 @@ Compatible with **PocketMine-MP API 5.0.0 - 5.27.0+**
 - **Safe Config Upgrade**: Existing reward fields and server settings are preserved, new rewards are appended once, and the previous configuration is backed up before migration.
 - **Prize List & Details**: Browse Common, Rare, Epic, and Legendary prizes in a custom two-column JSON UI. Select an item to see its per-roll chance, quantity, type, enchantments, and lore directly from the configured loot table.
 - **ScoreHud Integration**: Built-in `{soulwell.soulkey}` score tag to show player key counts on scoreboards.
-- **Nautic SoulWell JSON UI**: Navy panels, cyan button states, gold reward markers, and a compact confirmation menu with all three roll choices visible without scrolling (`classic-chest-rp: true`).
+- **Nautic SoulWell JSON UI**: Stone-gray headers, sage borders, green button states, gold reward markers, and a compact confirmation menu with all three roll choices visible without scrolling (`classic-chest-rp: true`).
 - **SoulWell-Only Inventory Design**: Dedicated vertical 1x, 3x, and 5x reward reels use actual container items and stack counts. Regular chests and unrelated forms keep their existing layouts.
 - **Resource Pack Compatibility**: The pack is rebuilt automatically on startup, preserving the existing form dispatcher and shared UI definitions from other server packs.
 
-The `dev` branch contains v1.9.4, adding a Prize List and Prize Details interface to the weighted rarities and win celebrations introduced in v1.8.0. The confirmation menu now includes a Prize List button, a bordered footer, and the navy, cyan, and gold styling used throughout the browser. The interface retains login pack priority and marker-based container routing. A separate visibility wrapper keeps existing server form dispatchers hidden while SoulWell is open, and close buttons are inset within every SoulWell panel header. Both classic and data-driven container screens recognize SoulWell roll menus. The published download above remains v1.6.5 until a new release is published. Reconnect to the server after the UI pack update to download version 1.9.4.
+The `dev` branch contains v1.9.5, recoloring the existing panels and buttons with the stone-gray and sage palette of Pets Sanctuary. The Prize List, Prize Details, weighted rarities, and win celebrations retain their existing layout and text. The confirmation menu now includes a Prize List button, a bordered footer, and the stone-gray, sage, green, and gold styling used throughout the browser. The interface retains login pack priority and marker-based container routing. A separate visibility wrapper keeps existing server form dispatchers hidden while SoulWell is open, and close buttons are inset within every SoulWell panel header. Both classic and data-driven container screens recognize SoulWell roll menus. The published download above remains v1.6.5 until a new release is published. Reconnect to the server after the UI pack update to download version 1.9.5.
 
 ---
 

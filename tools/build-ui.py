@@ -34,31 +34,31 @@ def png(name, pixels, nine_slice=None):
 
 def textures():
     p = image(256, 168)
-    rect(p, (2, 2, 256, 168), (3, 8, 17, 210))
-    rect(p, (0, 0, 254, 166), (6, 16, 28))
-    rect(p, (1, 1, 253, 165), (20, 59, 72))
-    rect(p, (2, 2, 252, 164), (52, 105, 117))
-    rect(p, (3, 3, 251, 163), (12, 31, 45))
-    rect(p, (4, 4, 250, 162), (21, 25, 46))
-    rect(p, (4, 4, 250, 19), (29, 74, 90))
-    rect(p, (4, 4, 250, 5), (49, 100, 112))
-    rect(p, (4, 19, 250, 20), (9, 26, 37))
-    rect(p, (4, 20, 250, 41), (10, 27, 39))
-    rect(p, (4, 41, 250, 42), (4, 14, 26))
+    rect(p, (2, 2, 256, 168), (28, 34, 25, 210))
+    rect(p, (0, 0, 254, 166), (35, 43, 31))
+    rect(p, (1, 1, 253, 165), (117, 130, 102))
+    rect(p, (2, 2, 252, 164), (207, 214, 193))
+    rect(p, (3, 3, 251, 163), (81, 93, 68))
+    rect(p, (4, 4, 250, 162), (54, 58, 50))
+    rect(p, (4, 4, 250, 19), (61, 85, 50))
+    rect(p, (4, 4, 250, 5), (156, 178, 129))
+    rect(p, (4, 19, 250, 20), (37, 47, 32))
+    rect(p, (4, 20, 250, 41), (46, 53, 40))
+    rect(p, (4, 41, 250, 42), (31, 40, 27))
     png("panel", p)
-    for name, fill, edge, top in [("button", (31, 61, 77), (66, 101, 113), (79, 116, 126)), ("button_hover", (26, 105, 119), (117, 218, 209), (158, 239, 222)), ("button_pressed", (18, 75, 92), (225, 197, 99), (255, 226, 133))]:
+    for name, fill, edge, top in [("button", (64, 87, 55), (177, 192, 148), (195, 211, 167)), ("button_hover", (83, 111, 66), (188, 214, 151), (213, 233, 184)), ("button_pressed", (52, 76, 44), (164, 190, 131), (245, 249, 231))]:
         p = image(16, 16)
-        rect(p, (0, 0, 16, 16), (5, 14, 25))
+        rect(p, (0, 0, 16, 16), (34, 43, 28))
         rect(p, (1, 1, 15, 15), edge)
         rect(p, (2, 2, 14, 14), fill)
         rect(p, (2, 2, 14, 3), top)
-        rect(p, (2, 13, 14, 14), (15, 35, 49))
+        rect(p, (2, 13, 14, 14), (43, 59, 34))
         png(name, p, 3)
     p = image(24, 24)
-    rect(p, (0, 0, 24, 24), (9, 26, 38))
-    rect(p, (1, 0, 23, 24), (32, 69, 80))
-    rect(p, (2, 1, 22, 23), (20, 47, 59))
-    rect(p, (3, 1, 21, 2), (40, 82, 90))
+    rect(p, (0, 0, 24, 24), (42, 48, 37))
+    rect(p, (1, 0, 23, 24), (137, 151, 119))
+    rect(p, (2, 1, 22, 23), (58, 67, 49))
+    rect(p, (3, 1, 21, 2), (165, 180, 143))
     png("slot", p)
     p = image(12, 12)
     rect(p, (1, 1, 11, 11), (93, 68, 26, 180))
@@ -81,10 +81,10 @@ def textures():
                 px = 5 - x + dx if flip else x + dx
                 rect(p, (px, y, px + 1, y + 1), (255, 214, 101))
         png(name, p)
-    for name, fill, cross in [("close", (26, 61, 78), (167, 205, 210)), ("close_hover", (32, 105, 117), (255, 226, 133)), ("close_pressed", (17, 64, 79), (255, 226, 133))]:
+    for name, fill, cross in [("close", (187, 195, 174), (43, 54, 34)), ("close_hover", (106, 135, 85), (245, 249, 231)), ("close_pressed", (67, 96, 54), (245, 249, 231))]:
         p = image(14, 14)
-        rect(p, (0, 0, 14, 14), (8, 24, 37))
-        rect(p, (1, 1, 13, 13), (52, 94, 106))
+        rect(p, (0, 0, 14, 14), (42, 50, 36))
+        rect(p, (1, 1, 13, 13), (126, 141, 107))
         rect(p, (2, 2, 12, 12), fill)
         for i in range(6):
             rect(p, (4 + i, 4 + i, 5 + i, 5 + i), cross)
@@ -107,49 +107,49 @@ def gate(expression):
 def prize_textures():
     def frame(name, width, height, footer=False):
         p = image(width, height)
-        rect(p, (2, 2, width, height), (3, 8, 17, 220))
-        for inset, color in [(0, (5, 15, 24)), (1, (27, 66, 78)), (2, (63, 118, 127)), (3, (13, 38, 50)), (4, (30, 67, 79)), (5, (17, 20, 43))]:
+        rect(p, (2, 2, width, height), (28, 34, 25, 220))
+        for inset, color in [(0, (35, 43, 31)), (1, (117, 130, 102)), (2, (207, 214, 193)), (3, (81, 93, 68)), (4, (164, 177, 143)), (5, (54, 58, 50))]:
             rect(p, (inset, inset, width - 2 - inset, height - 2 - inset), color)
-        rect(p, (5, 5, width - 7, 22), (29, 79, 95))
-        rect(p, (5, 5, width - 7, 6), (65, 119, 130))
-        rect(p, (5, 22, width - 7, 24), (6, 22, 32))
+        rect(p, (5, 5, width - 7, 22), (190, 198, 179))
+        rect(p, (5, 5, width - 7, 6), (230, 235, 218))
+        rect(p, (5, 22, width - 7, 24), (89, 104, 74))
         for side in [0, 1]:
             for x, y in [(8, 8), (12, 7), (16, 10), (21, 8), (27, 13), (10, 15), (15, 17), (22, 16), (29, 18), (35, 18)]:
                 px = x if not side else width - 14 - x
-                rect(p, (px, y, px + 2, y + 3), (20, 62, 77))
-                rect(p, (px + 2, y + 2, px + 4, y + 3), (47, 93, 107))
+                rect(p, (px, y, px + 2, y + 3), (147, 163, 129))
+                rect(p, (px + 2, y + 2, px + 4, y + 3), (210, 220, 194))
         if footer:
-            rect(p, (5, height - 25, width - 7, height - 23), (43, 84, 96))
-            rect(p, (5, height - 23, width - 7, height - 7), (10, 25, 35))
+            rect(p, (5, height - 25, width - 7, height - 23), (154, 170, 134))
+            rect(p, (5, height - 23, width - 7, height - 7), (45, 52, 39))
         png(name, p)
     frame("confirm_panel", 256, 196, True)
     frame("prize_panel", 300, 176)
     frame("detail_panel", 300, 166)
     def tile(name, fill, edge, width=16, height=16):
         p = image(width, height)
-        rect(p, (0, 0, width, height), (5, 16, 28))
+        rect(p, (0, 0, width, height), (34, 43, 28))
         rect(p, (1, 1, width - 1, height - 1), edge)
         rect(p, (2, 2, width - 2, height - 2), fill)
         rect(p, (2, 2, width - 2, 3), tuple(min(255, c + 12) for c in fill))
         rect(p, (2, height - 3, width - 2, height - 2), tuple(max(0, c - 9) for c in fill))
         png(name, p, 3)
-    tile("prize_card", (17, 42, 55), (40, 79, 91))
-    tile("prize_card_hover", (22, 63, 74), (111, 172, 172))
-    tile("prize_card_pressed", (22, 91, 103), (234, 207, 114))
-    tile("prize_info", (14, 35, 46), (49, 86, 96))
-    tile("prize_button", (30, 59, 76), (69, 102, 113))
-    tile("prize_button_hover", (22, 96, 108), (116, 218, 210))
-    tile("prize_button_pressed", (15, 126, 130), (165, 241, 222))
-    tile("prize_gold_button", (24, 45, 55), (192, 174, 106))
-    tile("prize_gold_hover", (36, 78, 82), (252, 226, 145))
-    tile("prize_gold_pressed", (22, 120, 126), (255, 238, 172))
-    for rarity, edge, fill in [("common", (163, 182, 187), (40, 58, 68)), ("rare", (59, 161, 169), (22, 88, 100)), ("epic", (140, 82, 174), (65, 36, 88)), ("legendary", (188, 167, 91), (45, 47, 42))]:
+    tile("prize_card", (45, 52, 40), (147, 162, 127))
+    tile("prize_card_hover", (56, 81, 58), (183, 209, 150))
+    tile("prize_card_pressed", (66, 96, 59), (211, 230, 181))
+    tile("prize_info", (43, 49, 37), (142, 157, 121))
+    tile("prize_button", (64, 87, 55), (177, 192, 148))
+    tile("prize_button_hover", (83, 111, 66), (188, 214, 151))
+    tile("prize_button_pressed", (52, 76, 44), (213, 233, 184))
+    tile("prize_gold_button", (70, 96, 57), (192, 208, 155))
+    tile("prize_gold_hover", (83, 112, 65), (222, 237, 188))
+    tile("prize_gold_pressed", (60, 88, 52), (201, 222, 164))
+    for rarity, edge, fill in [("common", (178, 189, 163), (67, 72, 61)), ("rare", (104, 161, 125), (45, 77, 64)), ("epic", (154, 122, 161), (69, 57, 72)), ("legendary", (193, 177, 113), (79, 73, 49))]:
         tile("tab_" + rarity, fill, tuple(int(c * 0.65) for c in edge))
         tile("tab_" + rarity + "_active", fill, edge)
         p = image(12, 12)
         rect(p, (1, 1, 11, 11), tuple(int(c * 0.48) for c in edge))
         rect(p, (2, 2, 10, 10), edge)
-        rect(p, (3, 3, 9, 9), (18, 42, 53))
+        rect(p, (3, 3, 9, 9), (48, 56, 44))
         rect(p, (4, 4, 8, 8), (0, 0, 0, 0))
         for x, y in [(0, 0), (8, 0), (0, 8), (8, 8)]:
             rect(p, (x, y, x + 4, y + 4), tuple(min(255, c + 38) for c in edge))
@@ -170,7 +170,7 @@ def prize_textures():
         rect(p, (2 + step, 5 - step, 4 + step, 7 - step), (214, 235, 238))
         rect(p, (2 + step, 5 + step, 4 + step, 7 + step), (214, 235, 238))
     png("back_arrow", p)
-    for name, edge, fill in [("prize_scroll_track", (35, 65, 77), (10, 27, 39)), ("prize_scroll_handle", (85, 188, 190), (36, 137, 149))]:
+    for name, edge, fill in [("prize_scroll_track", (103, 119, 87), (43, 52, 35)), ("prize_scroll_handle", (179, 204, 145), (104, 140, 74))]:
         p = image(4, 12)
         rect(p, (0, 0, 4, 12), edge)
         rect(p, (1, 1, 3, 11), fill)
@@ -191,7 +191,7 @@ def prize_controls(ui):
     ui["prize_button@common.button"] = {"size": [232, 24], "anchor_from": "top_left", "anchor_to": "top_left", "collection_name": "form_buttons", "$pressed_button_name": "button.form_button_click", "$sw_default_texture|default": "textures/ui/soulwell/prize_button", "$sw_hover_texture|default": "textures/ui/soulwell/prize_button_hover", "$sw_pressed_texture|default": "textures/ui/soulwell/prize_button_pressed", "bindings": details, "controls": [{"default@soulwell.prize_button_state": {"$sw_button_texture": "$sw_default_texture"}}, {"hover@soulwell.prize_button_state": {"$sw_button_texture": "$sw_hover_texture"}}, {"pressed@soulwell.prize_button_state": {"$sw_button_texture": "$sw_pressed_texture"}}]}
     confirm_buttons = [{"roll_" + str(i) + "@soulwell.prize_button": {"collection_index": i, "offset": [12, 58 + i * 29]}} for i in range(3)]
     confirm_buttons.append({"prizes@soulwell.prize_button": {"size": [104, 24], "offset": [76, 146], "collection_index": 3, "$sw_default_texture": "textures/ui/soulwell/prize_gold_button", "$sw_hover_texture": "textures/ui/soulwell/prize_gold_hover", "$sw_pressed_texture": "textures/ui/soulwell/prize_gold_pressed", "controls": [{"gift": picture("prize_gift", (12, 12), (6, 6), layer=8)}, {"default@soulwell.prize_list_button_state": {"$sw_button_texture": "$sw_default_texture"}}, {"hover@soulwell.prize_list_button_state": {"$sw_button_texture": "$sw_hover_texture"}}, {"pressed@soulwell.prize_list_button_state": {"$sw_button_texture": "$sw_pressed_texture"}}]}})
-    ui["confirmation"] = {"type": "panel", "size": [256, 196], "layer": 5, "controls": [{"frame": picture("confirm_panel", (256, 196), layer=0)}, {"title": label("§lSOUL WELL", (204, 12), (24, 8), text_alignment="center", color=[1, 0.86, 0.43])}, {"greeting": label("#text", (144, 12), (14, 37), font_scale_factor=0.85, bindings=[{"binding_name": "#title_text"}, {"binding_type": "view", "source_property_name": "(#title_text - '" + TITLE + "')", "target_property_name": "#text"}])}, {"balance": label("#form_text", (80, 12), (150, 37), font_scale_factor=0.85, text_alignment="right", bindings=[{"binding_name": "#form_text"}])}, {"key": picture("key", (10, 10), (232, 37), layer=7)}, {"buttons": collection((256, 196), confirm_buttons)}, {"footer": label("Select your Roll or view Prizes below", (232, 10), (12, 179), font_scale_factor=0.75, color=[0.65, 0.75, 0.78], text_alignment="center")}, {"close@soulwell.close": {}}]}
+    ui["confirmation"] = {"type": "panel", "size": [256, 196], "layer": 5, "controls": [{"frame": picture("confirm_panel", (256, 196), layer=0)}, {"title": label("§lSOUL WELL", (204, 12), (24, 8), text_alignment="center", color=[0.16, 0.22, 0.12])}, {"greeting": label("#text", (144, 12), (14, 37), font_scale_factor=0.85, bindings=[{"binding_name": "#title_text"}, {"binding_type": "view", "source_property_name": "(#title_text - '" + TITLE + "')", "target_property_name": "#text"}])}, {"balance": label("#form_text", (80, 12), (150, 37), font_scale_factor=0.85, text_alignment="right", bindings=[{"binding_name": "#form_text"}])}, {"key": picture("key", (10, 10), (232, 37), layer=7)}, {"buttons": collection((256, 196), confirm_buttons)}, {"footer": label("Select your Roll or view Prizes below", (232, 10), (12, 179), font_scale_factor=0.75, color=[0.72, 0.77, 0.66], text_alignment="center")}, {"close@soulwell.close": {}}]}
     ui["prize_card_state"] = {"type": "panel", "controls": [{"background": {**picture("prize_card", ("100%", "100%")), "texture": "$sw_card_texture"}}, {"icon": form_icon((28, 28), (3, 3))}, {"frame": {**picture("prize_frame_legendary", (34, 34), layer=8), "texture": "$sw_prize_frame", "visible": "$sw_card_focused"}}, {"text": form_label((96, 32), (36, 3), 0.75)}]}
     ui["prize_card@common.button"] = {"size": [134, 34], "anchor_from": "top_left", "anchor_to": "top_left", "collection_name": "form_buttons", "$pressed_button_name": "button.form_button_click", "bindings": details, "controls": [{"default@soulwell.prize_card_state": {"$sw_card_texture": "textures/ui/soulwell/prize_card", "$sw_card_focused": False}}, {"hover@soulwell.prize_card_state": {"$sw_card_texture": "textures/ui/soulwell/prize_card_hover", "$sw_card_focused": True}}, {"pressed@soulwell.prize_card_state": {"$sw_card_texture": "textures/ui/soulwell/prize_card_pressed", "$sw_card_focused": True}}]}
     ui["prize_tab_state"] = {"type": "panel", "controls": [{"background": {**picture("tab_legendary", ("100%", "100%")), "texture": "$sw_tab_texture"}}, {"text": form_label(("100% - 4px", 12), (2, 4), 0.75, text_alignment="center")}]}
@@ -208,11 +208,11 @@ def prize_controls(ui):
             tab_controls.append({"tab_" + rarity + "@soulwell.prize_tab": {"collection_index": i, "offset": [8 + i * 71, 27], "$sw_tab_default": "textures/ui/soulwell/tab_" + rarity + ("_active" if rarity == active else ""), "$sw_tab_active": "textures/ui/soulwell/tab_" + rarity + "_active"}})
         tab_controls.append({"back@soulwell.prize_back": {"collection_index": 4, "offset": [10, 153]}})
         ui["prize_grid_" + active] = collection((276, ((count + 1) // 2) * 38), [{"item_" + str(i) + "@soulwell.prize_card": {"collection_index": 5 + i, "offset": [(i % 2) * 138, (i // 2) * 38]}} for i in range(count)])
-        ui["prize_list_" + active] = {"type": "panel", "size": [300, 176], "layer": 5, "$sw_prize_frame": "textures/ui/soulwell/prize_frame_" + active, "controls": [{"frame": picture("prize_panel", (300, 176), layer=0)}, {"title": label("§lPRIZE LIST", (248, 12), (24, 8), text_alignment="center", color=[1, 0.86, 0.43])}, {"tabs": collection((300, 176), tab_controls)}, {"chance": label("#form_text", (280, 12), (8, 51), font_scale_factor=0.85, text_alignment="center", bindings=[{"binding_name": "#form_text"}])}, {"hint": label("TAP FOR DETAILS", (280, 8), (8, 65), font_scale_factor=0.65, text_alignment="center", color=[0.48, 0.52, 0.65])}, {"list@common.scrolling_panel": scroll((280, 76), (10, 75), "soulwell.prize_grid_" + active)}, {"close@soulwell.close": {}}]}
+        ui["prize_list_" + active] = {"type": "panel", "size": [300, 176], "layer": 5, "$sw_prize_frame": "textures/ui/soulwell/prize_frame_" + active, "controls": [{"frame": picture("prize_panel", (300, 176), layer=0)}, {"title": label("§lPRIZE LIST", (248, 12), (24, 8), text_alignment="center", color=[0.16, 0.22, 0.12])}, {"tabs": collection((300, 176), tab_controls)}, {"chance": label("#form_text", (280, 12), (8, 51), font_scale_factor=0.85, text_alignment="center", bindings=[{"binding_name": "#form_text"}])}, {"hint": label("TAP FOR DETAILS", (280, 8), (8, 65), font_scale_factor=0.65, text_alignment="center", color=[0.65, 0.70, 0.58])}, {"list@common.scrolling_panel": scroll((280, 76), (10, 75), "soulwell.prize_grid_" + active)}, {"close@soulwell.close": {}}]}
     ui["prize_detail_info"] = collection((104, "100%c"), [{"text": {**form_label((98, "default"), (3, 3), 0.85), "collection_index": 4}}])
     for rarity in colors:
         meta = [{"heading": {"type": "panel", "size": [160, 48], "offset": [12, 34], "anchor_from": "top_left", "anchor_to": "top_left", "collection_index": 1, "bindings": details, "controls": [{"icon": form_icon((34, 34), (3, 3))}, {"frame": {**picture("prize_frame_legendary", (42, 42), layer=8), "texture": "textures/ui/soulwell/prize_frame_" + rarity}}, {"name": form_label((116, 30), (46, 4), 0.85)}]}}, {"rarity": {**form_label((116, 14), (58, 57), 0.8), "collection_index": 2}}, {"chance": {**form_label((160, 14), (12, 94), 1.0), "collection_index": 3}}, {"odds": {**form_label((160, 28), (12, 109), 0.75), "collection_index": 5}}, {"back@soulwell.prize_back": {"collection_index": 0, "offset": [12, 139], "size": [158, 18], "$sw_back_idle_alpha": 1}}]
-        ui["prize_detail_" + rarity] = {"type": "panel", "size": [300, 166], "layer": 5, "controls": [{"frame": picture("detail_panel", (300, 166), layer=0)}, {"title": label("§lPRIZE DETAILS", (248, 12), (24, 8), text_alignment="center", color=[1, 0.86, 0.43])}, {"metadata": collection((300, 166), meta)}, {"info_background": picture("prize_info", (112, 124), (176, 32), layer=1)}, {"info@common.scrolling_panel": scroll((104, 116), (180, 36), "soulwell.prize_detail_info")}, {"close@soulwell.close": {}}]}
+        ui["prize_detail_" + rarity] = {"type": "panel", "size": [300, 166], "layer": 5, "controls": [{"frame": picture("detail_panel", (300, 166), layer=0)}, {"title": label("§lPRIZE DETAILS", (248, 12), (24, 8), text_alignment="center", color=[0.16, 0.22, 0.12])}, {"metadata": collection((300, 166), meta)}, {"info_background": picture("prize_info", (112, 124), (176, 32), layer=1)}, {"info@common.scrolling_panel": scroll((104, 116), (180, 36), "soulwell.prize_detail_info")}, {"close@soulwell.close": {}}]}
     contains = lambda marker: "(not ((#title_text - '" + marker + "') = #title_text))"
     is_confirm = contains("§e§lSoul Well Confirm§r")
     is_list = contains("§e§lSoulWell Prize List§r§r")
