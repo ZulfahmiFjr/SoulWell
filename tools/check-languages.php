@@ -76,7 +76,10 @@ check(str_contains($nativeForm["content"], "Anda harus memiliki setidaknya 10 So
 check($nativeForm["title"] === "§e§lKonfirmasi Soul Well" && end($nativeForm["buttons"])["text"] === "§lBatalkan Pembukaan", "Vanilla confirmation title or cancel button was not translated");
 $manager = new RewardManager($defaults);
 foreach(Reward::COLORS as $rarity => $color){
+ check(LanguageService::text("ind", "rarity.".$rarity) === ucfirst($rarity), "Tier name must remain English in Indonesian mode");
  $list = PrizeMenu::listing($manager, $rarity, "ind");
+ foreach(array_keys(Reward::COLORS) as $tab => $tier) check($list["buttons"][$tab]["text"] === Reward::COLORS[$tier]."§l".strtoupper($tier), "Rarity tab was translated");
+ check(str_contains($list["content"], "Peluang kelangkaan ".ucfirst($rarity)), "Chance caption must combine Indonesian wording with an English tier name");
  check(str_starts_with($list["title"], "§e§lDaftar Hadiah SoulWell§r§r") && str_contains($list["content"], "Peluang kelangkaan"), "Indonesian prize list routing or caption is incorrect");
  foreach($manager->getCatalog($rarity) as $entry){
   $detail = PrizeMenu::details($manager, $entry["index"], true, "ind");
@@ -105,9 +108,9 @@ check(str_contains(end($p->shownForms)->jsonSerialize()["buttons"][1]["text"], "
 $englishPlayer = new CheckPlayer("Bread");
 $server->recipients = [$p, $englishPlayer];
 $pl->rewardService->give($p, [$first["reward"]]);
-check(str_contains(end($p->messages), "baru saja menemukan") && str_contains(end($p->messages), "Legendaris Nautilus Fang"), "Indonesian subscriber received an English broadcast");
+check(str_contains(end($p->messages), "baru saja menemukan") && str_contains(end($p->messages), "Legendary Nautilus Fang"), "Indonesian subscriber received an English broadcast");
 check(str_contains(end($englishPlayer->messages), "just found") && str_contains(end($englishPlayer->messages), "Legendary Nautilus Fang"), "English subscriber received an Indonesian broadcast");
-check($p->titles[0][0] === "§6§lLEGENDARIS!" && $p->titles[0][1] === "§r§fNautilus Fang", "Celebration title/subtitle not localized");
+check($p->titles[0][0] === "§6§lLEGENDARY!" && $p->titles[0][1] === "§r§fNautilus Fang", "Celebration tier and item name must remain English");
 check(LanguageService::literal("ind", "High Powerful Diamondfish") === "High Powerful Diamondfish", "Literal translation corrupted partial words");
 check(LanguageService::literal("ind", "§6§lNautilus Fang§r") === "§6§lNautilus Fang§r", "Literal translation must preserve item names and colors");
 check(LanguageService::text("ind", "ui.greeting", ["{PLAYER}" => "Bread"]) === "§fHalo, Bread!", "Player name was translated as an item literal");
@@ -130,4 +133,4 @@ if(isset($argv[2])){
  $preview["ind"] = ["confirm" => ConfirmMenu::create($pl, $p), "list" => PrizeMenu::listing($manager, "legendary", "ind"), "detail" => $detailInd];
  file_put_contents($argv[2], json_encode($preview, JSON_UNESCAPED_UNICODE | JSON_THROW_ON_ERROR));
 }
-echo "PASS language persistence and isolation, command validation, format/placeholder parity, localized navigation with English currency/item metadata, bilingual broadcasts and 1x/3x/5x settlement\n";
+echo "PASS language persistence and isolation, command validation, format/placeholder parity, localized navigation with English currency, tier names and item metadata, bilingual broadcasts and 1x/3x/5x settlement\n";
