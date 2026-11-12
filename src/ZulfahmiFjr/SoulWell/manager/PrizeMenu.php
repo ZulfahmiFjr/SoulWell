@@ -26,7 +26,7 @@ final class PrizeMenu{
       $buttons[] = ["text" => "§f".mb_strimwidth($reward->getName($lang), 0, 20, "...", "UTF-8")."\n§7x".$reward->getItem()->getCount()."\n".$reward->getColor()."§l".mb_strtoupper(LanguageService::text($lang, "rarity.".$rarity), "UTF-8"), "image" => ["type" => "path", "data" => $entry["icon"]]];
      }
      $text = Reward::COLORS[$rarity].LanguageService::text($lang, "ui.rarity_chance", ["{RARITY}" => LanguageService::text($lang, "rarity.".$rarity), "{CHANCE}" => self::percent($manager->getRarityChance($rarity))]);
-     return ["type" => "form", "title" => $custom ? self::LIST_TITLE.LanguageService::marker($lang)."§0".$rarity : LanguageService::text($lang, "ui.prize_form_title"), "content" => $text, "buttons" => $buttons];
+     return ["type" => "form", "title" => $custom ? LanguageService::text($lang, "ui.prize_form_title")."§0".$rarity : LanguageService::text($lang, "ui.prize_form_title"), "content" => $text, "buttons" => $buttons];
     }
 
     public static function details(RewardManager $manager, int $index, bool $custom = true, string $lang = "eng"):array{
@@ -49,7 +49,7 @@ final class PrizeMenu{
       $buttons[] = ["text" => $info];
       $buttons[] = ["text" => $sub];
      }
-     return ["type" => "form", "title" => $custom ? self::DETAIL_TITLE.LanguageService::marker($lang)."§0".$rarity : LanguageService::text($lang, "ui.detail_form_title"), "content" => $reward->getColor().$reward->getName($lang)."\n".$chance."\n".$sub."\n\n".$info, "buttons" => $buttons];
+     return ["type" => "form", "title" => $custom ? LanguageService::text($lang, "ui.detail_form_title")."§0".$rarity : LanguageService::text($lang, "ui.detail_form_title"), "content" => $reward->getColor().$reward->getName($lang)."\n".$chance."\n".$sub."\n\n".$info, "buttons" => $buttons];
     }
 
     public static function configureUi(array &$ui, RewardManager $manager):void{

@@ -105,13 +105,31 @@ def check_ui(ui):
         detail = ui.get("prize_detail_" + rarity, {})
         if detail.get("size") != [300, 166]:
             errors.append(rarity + " detail panel has an unexpected reference size")
-    localized = [control for route in routes[1:] for key, control in route.items() if "_ind@" in key]
-    english = [control for route in routes[1:] for key, control in route.items() if "_ind@" not in key]
+    localized = [control for route in routes[1:] for key, control in route.items() if key.endswith("_ind")]
+    english = [control for route in routes[1:] for key, control in route.items() if not key.endswith("_ind")]
     if len(localized) != 9 or len(english) != 9:
         errors.append("each form language needs exactly nine routes")
-    for controls, guard in [(english, "and (not (not ((#title_text - '§0§0§r') = #title_text)))"), (localized, "and (not ((#title_text - '§0§0§r') = #title_text))")]:
-        if any(guard not in control.get("bindings", [{}])[-1].get("source_property_name", "") for control in controls):
-            errors.append("English and Indonesian form routes must use opposite language guards")
+    for route in routes:
+        for key, control in route.items():
+            properties = control.get("property_bag", {})
+            bindings = control.get("bindings", [])
+            content = control.get("controls", [])
+            if "@" in key or control.get("type") != "panel" or control.get("visible") is not False:
+                errors.append(key + " must gate a plain wrapper rather than an inherited visual panel")
+            if properties != {"#sw_form_title": ""} or not any(binding.get("binding_name") == "#title_text" and binding.get("binding_name_override") == "#sw_form_title" for binding in bindings):
+                errors.append(key + " must copy the live title into its own initialized property")
+            views = [binding for binding in bindings if binding.get("binding_type") == "view"]
+            if len(views) != 1 or views[0].get("target_property_name") != "#visible" or set(re.findall(r"#[A-Za-z_][A-Za-z_0-9]*", views[0].get("source_property_name", ""))) != {"#sw_form_title"}:
+                errors.append(key + " visibility must read only its own title property")
+            if len(content) != 1 or not all(name.startswith("content@") for name in content[0]):
+                errors.append(key + " must keep the inherited content below the visibility wrapper")
+            expression = views[0].get("source_property_name", "") if views else ""
+            if "§0§0§r" in expression:
+                errors.append(key + " must use explicit localized form titles instead of color-only language flags")
+    for kind, marker in [("confirmation_ind", "§e§lKonfirmasi Soul Well§r§r"), ("list_legendary_ind", "§e§lDaftar Hadiah SoulWell§r§r"), ("detail_legendary_ind", "§e§lRincian Hadiah SoulWell§r§r")]:
+        route = next((entry[kind] for entry in routes if kind in entry), {})
+        if marker not in json.dumps(route, ensure_ascii=False):
+            errors.append(kind + " is missing its explicit localized form title")
     for rarity in ["common", "rare", "epic", "legendary"]:
         controls = {key: value for control in ui.get("prize_list_" + rarity + "_ind", {}).get("controls", []) for key, value in control.items()}
         if controls.get("list@common.scrolling_panel", {}).get("$scrolling_content") != "soulwell.prize_grid_" + rarity + "_ind":

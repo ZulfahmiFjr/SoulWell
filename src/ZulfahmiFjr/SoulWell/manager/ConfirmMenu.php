@@ -18,7 +18,7 @@ final class ConfirmMenu{
      $buttons = [];
      foreach([1, 3, 5] as $rolls) $buttons[] = ["text" => $pl->text($p, "ui.roll", ["{ROLLS}" => (string) $rolls, "{COST}" => (string) ($rolls * 10)])];
      $buttons[] = ["text" => $pl->text($p, "ui.prize_button"), "image" => ["type" => "path", "data" => "textures/ui/soulwell/prize_gift"]];
-     if($pl->hasCustomUi()) return ["type" => "form", "title" => self::TITLE.LanguageService::marker($lang).$pl->text($p, "ui.greeting", ["{PLAYER}" => $p->getName()]), "content" => $pl->text($p, "ui.balance", ["{KEY}" => (string) $keys]), "buttons" => $buttons];
+     if($pl->hasCustomUi()) return ["type" => "form", "title" => ($lang === "ind" ? $pl->text($p, "ui.confirm_title")."§r§r" : self::TITLE).$pl->text($p, "ui.greeting", ["{PLAYER}" => $p->getName()]), "content" => $pl->text($p, "ui.balance", ["{KEY}" => (string) $keys]), "buttons" => $buttons];
      $message = $pl->text($p, "ui.banner");
      $data = $pl->getConfig()->get($lang === "ind" && $pl->getConfig()->exists("message-ind") ? "message-ind" : "message", []);
      foreach(is_array($data) ? $data : (is_string($data) ? [$data] : []) as $text){

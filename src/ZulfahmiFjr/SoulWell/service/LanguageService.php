@@ -9,7 +9,6 @@ use pocketmine\utils\Config;
 
 final class LanguageService{
 
-    public const IND_MARKER = "§0§0§r";
     private static array $catalogs = [];
     private static array $patterns = [];
     private Config $players;
@@ -57,7 +56,4 @@ final class LanguageService{
      return implode("", $parts);
     }
 
-    public static function marker(string $lang):string{
-     return $lang === "ind" ? self::IND_MARKER : "";
-    }
 }

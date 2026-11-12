@@ -12,7 +12,6 @@ use pocketmine\block\utils\DyeColor;
 use ZulfahmiFjr\SoulWell\Main;
 use ZulfahmiFjr\SoulWell\libs\muqsit\invmenu\InvMenu;
 use ZulfahmiFjr\SoulWell\manager\NoteBlockSound;
-use ZulfahmiFjr\SoulWell\service\LanguageService;
 
 class RollUpdater extends Task{
 
@@ -41,7 +40,7 @@ class RollUpdater extends Task{
      $this->rolls = $rolls;
      $this->columns = $rolls === 5 ? [0, 2, 4, 6, 8] : ($rolls === 3 ? [2, 4, 6] : [4]);
      $menu = InvMenu::create(InvMenu::TYPE_DOUBLE_CHEST);
-     $menu->setName($pl->text($p, "ui.inventory_title", ["{ROLLS}" => (string) $rolls]).LanguageService::marker($pl->lang($p)));
+     $menu->setName($pl->text($p, "ui.inventory_title", ["{ROLLS}" => (string) $rolls]));
      $menu->setListener(InvMenu::readonly());
      $menu->setInventoryCloseListener(function(Player $p):void{
       $this->closeInventory($p);

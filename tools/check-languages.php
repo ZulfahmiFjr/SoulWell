@@ -64,7 +64,7 @@ $pl->onCommand($p, $command, "sw", ["info"]);
 check(str_contains(end($p->messages), "Anda dapat menghubungi"), "Plugin info was not translated formally");
 check($pl->souls->getAll() === $keysBefore && $pl->getConfig()->getAll() === $configBefore, "Language changes modified keys or the loot configuration");
 $confirmInd = ConfirmMenu::create($pl, $p);
-check(str_contains($confirmInd["title"], LanguageService::IND_MARKER) && str_contains($confirmInd["title"], "Halo, SoulWellTest!"), "Indonesian confirmation marker/greeting missing");
+check(str_starts_with($confirmInd["title"], "§e§lKonfirmasi Soul Well§r§r") && str_contains($confirmInd["title"], "Halo, SoulWellTest!"), "Indonesian confirmation marker/greeting missing");
 check($confirmInd["buttons"][2]["text"] === "§f5x Putar §6(50 Kunci Jiwa)" && $confirmInd["buttons"][3]["text"] === "§e§lDAFTAR HADIAH", "Indonesian confirmation labels or costs are incorrect");
 $vanilla = (new ReflectionClass(\ZulfahmiFjr\SoulWell\Main::class))->newInstanceWithoutConstructor();
 field($vanilla, \pocketmine\plugin\PluginBase::class, "config", $pl->getConfig());
@@ -76,7 +76,7 @@ check($nativeForm["title"] === "§e§lKonfirmasi Soul Well" && end($nativeForm["
 $manager = new RewardManager($defaults);
 foreach(Reward::COLORS as $rarity => $color){
  $list = PrizeMenu::listing($manager, $rarity, "ind");
- check(str_contains($list["title"], LanguageService::IND_MARKER) && str_contains($list["content"], "Peluang kelangkaan"), "Indonesian prize list routing or caption is incorrect");
+ check(str_starts_with($list["title"], "§e§lDaftar Hadiah SoulWell§r§r") && str_contains($list["content"], "Peluang kelangkaan"), "Indonesian prize list routing or caption is incorrect");
  foreach($manager->getCatalog($rarity) as $entry){
   $detail = PrizeMenu::details($manager, $entry["index"], true, "ind");
   check(str_contains($detail["buttons"][3]["text"], PrizeMenu::percent($entry["chance"])), "Localization changed the actual prize chance");

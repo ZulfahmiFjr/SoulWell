@@ -270,17 +270,22 @@ def localized_controls(ui):
     controls["status"]["text"] = text["ui.rolling"]
     controls["hint"]["text"] = text["ui.roll_hint"]
     controls["hint"]["font_scale_factor"] = 0.65
-    contains = lambda marker: "(not ((#title_text - '" + marker + "') = #title_text))"
-    ind = contains("§0§0§r")
-    routes = ui["form_dispatch"]["controls"]
-    localized = []
-    for route in routes[1:]:
-        key, value = next(iter(route.items()))
-        expression = value["bindings"][-1]["source_property_name"]
-        value["bindings"][-1]["source_property_name"] = "(" + expression + " and (not " + ind + "))"
-        name, reference = key.split("@", 1)
-        localized.append({name + "_ind@" + reference + "_ind": {"visible": False, "bindings": gate("(" + expression + " and " + ind + ")")}})
-    routes.extend(localized)
+    confirm_title = text["ui.confirm_title"] + "§r§r"
+    confirm["greeting"]["bindings"][-1]["source_property_name"] = "(#title_text - '" + confirm_title + "')"
+    contains = lambda marker: "(not ((#sw_form_title - '" + marker + "') = #sw_form_title))"
+    def wrapper(reference, expression):
+        return {"type": "panel", "size": [0, 0], "visible": False, "property_bag": {"#sw_form_title": ""}, "bindings": [{"binding_name": "#title_text", "binding_name_override": "#sw_form_title"}, {"binding_type": "view", "source_property_name": expression, "target_property_name": "#visible"}], "controls": [{"content@" + reference: {}}]}
+    routes = []
+    markers = [TITLE, confirm_title, "§e§lSoulWell Prize List§r§r", text["ui.prize_form_title"], "§e§lSoulWell Prize Detail§r§r", text["ui.detail_form_title"]]
+    ordinary = "(" + " and ".join("((#sw_form_title - '" + marker + "') = #sw_form_title)" for marker in markers) + ")"
+    routes.append({"original": wrapper("server_form.long_form", ordinary)})
+    for suffix, confirm_marker, list_marker, detail_marker in [("", TITLE, markers[2], markers[4]), ("_ind", confirm_title, markers[3], markers[5])]:
+        routes.append({"confirmation" + suffix: wrapper("soulwell.confirmation" + suffix, contains(confirm_marker))})
+        for rarity in ["common", "rare", "epic", "legendary"]:
+            for kind, marker in [("list", list_marker), ("detail", detail_marker)]:
+                name = kind + "_" + rarity + suffix
+                routes.append({name: wrapper("soulwell.prize_" + name, "(" + contains(marker) + " and " + contains("§0" + rarity) + ")")})
+    ui["form_dispatch"]["controls"] = routes
 
 def controls():
     is_soulwell = "(not ((#title_text - '§e§lSoul Well Confirm§r') = #title_text))"
